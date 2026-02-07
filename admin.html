@@ -1,0 +1,1979 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>لوحة الإدارة | Admin</title>
+<style>
+:root{
+  --bg:#0b1220;
+  --card:#0f1a33;
+  --line:rgba(255,255,255,.10);
+  --text:#eef3ff;
+  --muted:#a6b6ea;
+  --blue:#2b6bff;
+  --green:#18c37e;
+  --red:#ff4d4d;
+  --amber:#ffb020;
+  --shadow: 0 14px 34px rgba(0,0,0,.35);
+  --r:18px;
+  --r2:22px;
+  --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Noto Kufi Arabic","Noto Sans Arabic", Tahoma, Arial;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:var(--font);
+  color:var(--text);
+  background:
+    radial-gradient(1100px 650px at 10% 0%, rgba(43,107,255,.22), transparent 55%),
+    radial-gradient(900px 650px at 100% 10%, rgba(24,195,126,.12), transparent 55%),
+    radial-gradient(800px 520px at 40% 90%, rgba(255,176,32,.10), transparent 60%),
+    var(--bg);
+  direction:rtl;
+}
+a{color:inherit}
+button,input,select,textarea{font-family:inherit}
+.container{max-width:1180px; margin:0 auto; padding:16px}
+.topbar{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:var(--r2);
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  box-shadow:var(--shadow);
+  position:sticky; top:12px; z-index:30; backdrop-filter: blur(10px);
+}
+.brand{display:flex; align-items:center; gap:10px; min-width:0}
+.logo{
+  width:44px;height:44px;border-radius:14px;
+  border:1px solid var(--line);
+  background:linear-gradient(135deg, rgba(43,107,255,.35), rgba(24,195,126,.20));
+  overflow:hidden; display:grid; place-items:center;
+}
+.logo img{width:100%;height:100%;object-fit:cover}
+.brand .txt{display:flex;flex-direction:column;min-width:0}
+.brand .txt b{font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.brand .txt span{font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.actions{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+.pill{
+  padding:8px 10px; border-radius:999px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.03);
+  font-size:12px; color:var(--muted);
+}
+.btn{
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  padding:10px 12px;
+  border-radius:14px;
+  cursor:pointer;
+  font-weight:900;
+  display:inline-flex; align-items:center; gap:8px;
+}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:linear-gradient(135deg, rgba(43,107,255,.95), rgba(43,107,255,.70)); border-color:rgba(43,107,255,.35)}
+.btn.green{background:linear-gradient(135deg, rgba(24,195,126,.95), rgba(24,195,126,.70)); border-color:rgba(24,195,126,.35)}
+.btn.red{background:linear-gradient(135deg, rgba(255,77,77,.95), rgba(255,77,77,.70)); border-color:rgba(255,77,77,.35)}
+.btn.ghost{background:transparent}
+.grid{display:grid; gap:14px}
+@media(min-width:920px){ .grid.cols2{grid-template-columns: 1.2fr .8fr} }
+.card{
+  border:1px solid var(--line);
+  border-radius:var(--r2);
+  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.card .hd{padding:14px 14px 10px; border-bottom:1px solid var(--line); display:flex; align-items:flex-start; justify-content:space-between; gap:10px}
+.card .hd h2{margin:0; font-size:14px}
+.card .hd p{margin:6px 0 0; font-size:12px; color:var(--muted)}
+.card .bd{padding:14px}
+.row{display:grid; gap:10px}
+@media(min-width:820px){
+  .row.cols2{grid-template-columns:1fr 1fr}
+  .row.cols3{grid-template-columns:1fr 1fr 1fr}
+  .row.cols4{grid-template-columns:1fr 1fr 1fr 1fr}
+  .row.cols5{grid-template-columns:1fr 1fr 1fr 1fr 1fr}
+}
+.field{display:flex; flex-direction:column; gap:6px}
+label{font-size:12px; color:var(--muted)}
+input,select,textarea{
+  width:100%;
+  padding:12px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:rgba(10,16,30,.55);
+  color:var(--text);
+  outline:none;
+}
+textarea{min-height:96px; resize:vertical}
+.small{font-size:12px; color:var(--muted)}
+hr.sep{border:none;border-top:1px solid var(--line); margin:12px 0}
+.tableWrap{overflow:auto; border:1px solid var(--line); border-radius:16px}
+table{width:100%; border-collapse:collapse; min-width:860px; background:rgba(0,0,0,.15)}
+th,td{padding:10px; border-bottom:1px solid var(--line); text-align:right; font-size:12px}
+th{color:var(--muted); font-weight:900; background:rgba(255,255,255,.04); position:sticky; top:0}
+tr:hover td{background:rgba(255,255,255,.03)}
+.tag{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 10px;border-radius:999px;border:1px solid var(--line);
+  background:rgba(255,255,255,.03); font-size:12px; color:var(--muted)
+}
+.tag.good{color:#bff7df; border-color:rgba(24,195,126,.30); background:rgba(24,195,126,.10)}
+.tag.bad{color:#ffc0c0; border-color:rgba(255,77,77,.30); background:rgba(255,77,77,.10)}
+.tag.warn{color:#ffe0b3; border-color:rgba(255,176,32,.30); background:rgba(255,176,32,.10)}
+.toast{
+  position:fixed; inset:auto 14px 14px 14px; max-width:720px; margin:0 auto;
+  display:none; gap:10px; align-items:flex-start;
+  background:rgba(10,16,30,.92);
+  border:1px solid var(--line);
+  border-radius:18px; padding:12px;
+  box-shadow:var(--shadow);
+  z-index:120;
+}
+.toast.show{display:flex}
+.toast .dot{width:10px;height:10px;border-radius:999px;background:var(--green); margin-top:6px}
+.toast .msg{font-size:13px; line-height:1.4}
+.drawerOverlay{position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; z-index:60}
+.drawerOverlay.show{display:block}
+.drawer{
+  position:fixed; inset:0 auto 0 0; width:min(320px, 88vw);
+  background:linear-gradient(180deg, rgba(15,26,51,.98), rgba(11,18,32,.98));
+  border-right:1px solid var(--line);
+  transform:translateX(-105%); transition:transform .25s ease;
+  z-index:70;
+  padding:14px;
+  display:flex; flex-direction:column; gap:12px;
+}
+.drawer.show{transform:translateX(0)}
+.nav{display:flex; flex-direction:column; gap:8px}
+.nav button{
+  width:100%;
+  text-align:right;
+  padding:12px;
+  border-radius:16px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.03);
+  color:var(--text);
+  cursor:pointer;
+  font-weight:900;
+}
+.nav button.active{border-color:rgba(43,107,255,.55); background:rgba(43,107,255,.15)}
+.kpis{display:grid; gap:10px}
+@media(min-width:820px){.kpis{grid-template-columns:repeat(4,1fr)}}
+.kpi{padding:12px;border:1px solid var(--line); border-radius:18px; background:rgba(255,255,255,.03)}
+.kpi b{display:block; font-size:12px; color:var(--muted)}
+.kpi span{display:block; font-size:18px; font-weight:1000; margin-top:6px}
+.badge{
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid var(--line); border-radius:16px; padding:10px 12px;
+  background:rgba(255,255,255,.03);
+  font-size:12px; color:var(--muted)
+}
+.loginTabs{display:flex; gap:10px; flex-wrap:wrap}
+.loginTabs .btn{flex:1}
+.hint{font-size:12px;color:var(--muted)}
+.printArea{direction:rtl; font-family:var(--font); color:#111}
+.printTitle{font-size:20px;font-weight:900;margin:0 0 10px}
+.printSub{margin:0 0 10px; color:#333}
+.printBox{border:1px solid #ddd; border-radius:12px; padding:12px}
+.printTable{width:100%; border-collapse:collapse}
+.printTable th,.printTable td{border-bottom:1px solid #eee; padding:8px; font-size:12px; text-align:right}
+
+.nav button.danger{background:rgba(255,77,77,.12); border-color:rgba(255,77,77,.35)}
+.nav button.danger:hover{background:rgba(255,77,77,.18)}
+
+</style>
+<script>
+/* ====== Payroll App (Static / LocalStorage) ====== */
+const APP_KEY = "payrollApp_v1";
+
+function deepClone(v){ return JSON.parse(JSON.stringify(v)); }
+function uid(prefix="id"){ return `${prefix}_${Math.random().toString(16).slice(2)}_${Date.now().toString(16)}`; }
+function toast(msg, type="ok"){
+  const el = document.getElementById("toast");
+  if(!el) return;
+  const dot = el.querySelector(".dot");
+  dot.style.background = type==="bad" ? "var(--red)" : (type==="warn" ? "var(--amber)" : "var(--green)");
+  el.querySelector(".msg").textContent = msg;
+  el.classList.add("show");
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>el.classList.remove("show"), 2600);
+}
+function fmtMoney(n){
+  n = Number(n);
+  if(!isFinite(n)) n = 0;
+  return (Math.round(n*100)/100).toLocaleString('ar-EG', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function nowISODate(){
+  const d=new Date();
+  const yyyy=d.getFullYear(), mm=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
+  return `${yyyy}-${mm}-${dd}`;
+}
+function yyyymm(d=new Date()){
+  const yyyy=d.getFullYear(), mm=String(d.getMonth()+1).padStart(2,'0');
+  return `${yyyy}-${mm}`;
+}
+function prevYYYYMM(ym){
+  const [y,m]=ym.split('-').map(Number);
+  const d=new Date(y, m-1, 1);
+  d.setMonth(d.getMonth()-1);
+  return yyyymm(d);
+}
+function parseTimeToMinutes(hhmm){
+  if(!hhmm) return null;
+  const m=/^(\d{1,2}):(\d{2})$/.exec(String(hhmm).trim());
+  if(!m) return null;
+  const h=Number(m[1]), mi=Number(m[2]);
+  if(h<0||h>23||mi<0||mi>59) return null;
+  return h*60+mi;
+}
+function minutesToHHMM(min){
+  min = Math.max(0, Math.floor(min));
+  const h=Math.floor(min/60), m=min%60;
+  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+}
+function clamp(n,a,b){ return Math.max(a, Math.min(b,n)); }
+
+function getApp(){
+  try{
+    const raw = localStorage.getItem(APP_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){ return null; }
+}
+function setApp(obj){ localStorage.setItem(APP_KEY, JSON.stringify(obj)); }
+function ensureApp(){
+  let app = getApp();
+  const ym = yyyymm();
+  if(!app){
+    app = {
+      company:{ companyName:"", companyLogo:"" },
+      departments:[],
+      employees:[],
+      managers:[{ id: uid("mgr"), username:"manager", password:"manager123" }],
+      monthSettings:{},
+      attendance:{},
+      advances:{},
+      advancesList:[]
+    };
+  }
+  if(!Array.isArray(app.managers) || !app.managers.find(m=>m.username==="manager")){
+    app.managers = Array.isArray(app.managers) ? app.managers : [];
+    app.managers.push({ id: uid("mgr"), username:"manager", password:"manager123" });
+  }
+  if(!app.monthSettings) app.monthSettings = {};
+  if(!app.monthSettings[ym]){
+    const d=new Date();
+    const daysInMonth = new Date(d.getFullYear(), d.getMonth()+1, 0).getDate();
+    app.monthSettings[ym] = {
+      daysInMonth,
+      workHoursInMonth: 176,
+      shiftStart:"09:00",
+      shiftEnd:"17:00",
+      lateGraceMinutes: 10,
+      earlyLeaveGraceMinutes: 10,
+      latePenaltyMultiplier: 1.5,
+      earlyPenaltyMultiplier: 1.5,
+      overtimeMultiplier: 1.5
+    };
+  }
+  if(!app.attendance) app.attendance = {};
+  if(!app.advances) app.advances = {};
+
+  if(!Array.isArray(app.advancesList)) app.advancesList = [];
+  // Migration from legacy structure app.advances[ym][empId]={amount,note}
+  if(app.advances && Object.keys(app.advances).length && app.advancesList.length===0){
+    try{
+      for(const ymKey of Object.keys(app.advances||{})){
+        const m = app.advances[ymKey]||{};
+        for(const empId of Object.keys(m||{})){
+          const a = m[empId]||{};
+          const amount = Number(a.amount||0);
+          if(!amount) continue;
+          app.advancesList.push({
+            id: uid("adv"),
+            date: `${ymKey}-01`,
+            ym: ymKey,
+            employeeId: empId,
+            amount,
+            note: (a.note||"").trim() || "— (مهاجرة من نسخة قديمة)"
+          });
+        }
+      }
+    }catch(e){}
+  }
+
+  if(!app.departments) app.departments = [];
+  if(!app.employees) app.employees = [];
+  if(!app.company) app.company = { companyName:"", companyLogo:"" };
+  setApp(app);
+  return app;
+}
+function updateApp(mutator){
+  const app = ensureApp();
+  const draft = deepClone(app);
+  mutator(draft);
+  setApp(draft);
+  return draft;
+}
+
+function sessionSet(obj){ sessionStorage.setItem(`${APP_KEY}:session`, JSON.stringify(obj)); }
+function sessionGet(){ try{ return JSON.parse(sessionStorage.getItem(`${APP_KEY}:session`)||"null"); }catch(e){ return null; } }
+function sessionClear(){ sessionStorage.removeItem(`${APP_KEY}:session`); }
+
+function requireRole(roles){
+  const s = sessionGet();
+  if(!s || !roles.includes(s.role)) return null;
+  return s;
+}
+
+function csvParse(text){
+  const rows = [];
+  const lines = String(text||"").replace(/\r/g,"").split("\n").filter(l=>l.trim().length);
+  if(!lines.length) return rows;
+  const sep = (lines[0].includes(";") && !lines[0].includes(",")) ? ";" : ",";
+  for(const line of lines){
+    const out=[];
+    let cur="", inQ=false;
+    for(let i=0;i<line.length;i++){
+      const ch=line[i];
+      if(ch === '"'){
+        if(inQ && line[i+1] === '"'){ cur+='"'; i++; }
+        else inQ = !inQ;
+      }else if(ch===sep && !inQ){
+        out.push(cur.trim()); cur="";
+      }else cur+=ch;
+    }
+    out.push(cur.trim());
+    rows.push(out);
+  }
+  return rows;
+}
+function csvStringify(rows){
+  return rows.map(r => r.map(v=>{
+    const s=String(v??"");
+    if(/[",\n;]/.test(s)) return `"${s.replace(/"/g,'""')}"`;
+    return s;
+  }).join(",")).join("\n");
+}
+function downloadText(filename, text, mime="text/plain;charset=utf-8"){
+  const blob=new Blob([text],{type:mime});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(blob);
+  a.download=filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 2000);
+}
+function downloadJSON(filename, obj){ downloadText(filename, JSON.stringify(obj,null,2), "application/json;charset=utf-8"); }
+
+async function readFileText(file){
+  return new Promise((res,rej)=>{
+    const fr=new FileReader();
+    fr.onload=()=>res(String(fr.result||""));
+    fr.onerror=()=>rej(fr.error||new Error("FileReader error"));
+    fr.readAsText(file,"utf-8");
+  });
+}
+
+/* ====== Payroll Logic ====== */
+function computeDayMetrics(settings, rec){
+  // returns {lateMinutes, earlyLeaveMinutes, overtimeMinutes, absent}
+  const s=settings;
+  const start = parseTimeToMinutes(s.shiftStart);
+  const end = parseTimeToMinutes(s.shiftEnd);
+  const checkIn = parseTimeToMinutes(rec.checkIn);
+  const checkOut = parseTimeToMinutes(rec.checkOut);
+
+  const excuse = rec.excuseType || "none";
+  const hasTimes = (checkIn!=null && checkOut!=null);
+
+  let late=0, early=0, ot=0, absent=false;
+
+  if(!hasTimes){
+    // no in/out -> absent
+    absent=true;
+  }else{
+    if(checkIn>start){
+      late = Math.max(0, checkIn - start - Number(s.lateGraceMinutes||0));
+    }
+    if(checkOut<end){
+      early = Math.max(0, end - checkOut - Number(s.earlyLeaveGraceMinutes||0));
+    }
+    if(checkOut>end){
+      ot = Math.max(0, checkOut - end);
+    }
+  }
+
+  if(excuse==="late_excused") late=0;
+  if(excuse==="early_excused") early=0;
+  if(excuse==="absent_excused"){ absent=true; late=0; early=0; ot=0; }
+
+  return { lateMinutes:late, earlyLeaveMinutes:early, overtimeMinutes:ot, absent };
+}
+
+function computePayrollForEmployee(app, emp, ym){
+  const settings = app.monthSettings[ym] || app.monthSettings[yyyymm()] || {};
+  const workHoursInMonth = Number(settings.workHoursInMonth||176);
+  const hourValue = (Number(emp.monthlySalary||0) / (workHoursInMonth || 1));
+
+  // advances (multiple records by date)
+  const advances = sumAdvancesForMonth(app, ym, emp.id);
+// attendance records for month
+  let lateMin=0, earlyMin=0, otMin=0;
+  let absentExcusedDays=0, absentNoExcuseDays=0;
+  const rows = [];
+
+  for(const dateKey of Object.keys(app.attendance||{})){
+    if(!dateKey.startsWith(ym+"-")) continue;
+    const day = app.attendance[dateKey] || {};
+    const rec = day[emp.id];
+    if(!rec) continue;
+
+    const m = computeDayMetrics(settings, rec);
+    lateMin += m.lateMinutes;
+    earlyMin += m.earlyLeaveMinutes;
+    otMin += m.overtimeMinutes;
+
+    if(m.absent){
+      if((rec.excuseType||"none")==="absent_excused") absentExcusedDays += 1;
+      else if(!rec.checkIn && !rec.checkOut) absentNoExcuseDays += 1;
+    }
+
+    rows.push({
+      date: dateKey,
+      checkIn: rec.checkIn || "",
+      checkOut: rec.checkOut || "",
+      excuseType: rec.excuseType || "none",
+      outOfFactory: !!rec.outOfFactory,
+      note: rec.note || "",
+      advancesOnDate: sumAdvancesOnDate(app, dateKey, emp.id),
+      ...m
+    });
+  }
+
+  // Deduction & additions
+  const lateDeduction = (lateMin/60) * hourValue * Number(settings.latePenaltyMultiplier||1.5);
+  const earlyDeduction = (earlyMin/60) * hourValue * Number(settings.earlyPenaltyMultiplier||1.5);
+  const otValue = (otMin/60) * hourValue * Number(settings.overtimeMultiplier||1.5);
+
+  // absent without excuse -> deduct full day based on salary/daysInMonth, multiplier
+  const daysInMonth = Number(settings.daysInMonth||30);
+  const dayValue = (Number(emp.monthlySalary||0) / (daysInMonth || 1));
+  const absenceNoExcuseFactor = Number((settings.absenceNoExcuseFactor ?? 1.0));
+  const absenceNoExcuseDeduction = absentNoExcuseDays * dayValue * absenceNoExcuseFactor;
+
+  const base = Number(emp.monthlySalary||0);
+
+  // if employee has no attendance at all in month => net=0 (as requested in spec)
+  const hasAny = rows.length > 0;
+  let net = base + otValue - lateDeduction - earlyDeduction - absenceNoExcuseDeduction - advances;
+  if(!hasAny) net = 0;
+
+  return {
+    ym,
+    hourValue,
+    baseSalary: base,
+    totals:{
+      baseSalary: base,
+      lateMinutes: lateMin,
+      earlyLeaveMinutes: earlyMin,
+      overtimeMinutes: otMin,
+      absentExcusedDays,
+      absentNoExcuseDays,
+      advances,
+      lateDeduction,
+      earlyDeduction,
+      overtimeValue: otValue,
+      absenceNoExcuseDeduction,
+      net
+    },
+    rows: rows.sort((a,b)=>a.date.localeCompare(b.date))
+  };
+}
+
+/* ====== Printing (Receipt PDF via Print) ====== */
+function openReceiptPrintWindow(app, emp, ym){
+  const dept = (app.departments||[]).find(d=>d.id===emp.departmentId);
+  const payroll = computePayrollForEmployee(app, emp, ym);
+  const companyName = (app.company?.companyName || "").trim() || "—";
+  const logo = app.company?.companyLogo || "";
+
+  const rowsHtml = payroll.rows.map(r=>{
+    const exMap = {
+      none:"بدون",
+      late_excused:"تأخير بعذر",
+      early_excused:"انصراف مبكر بعذر",
+      absent_excused:"غياب بعذر"
+    };
+    return `<tr>
+      <td>${r.date}</td>
+      <td>${arDayName(r.date)}</td>
+      <td>${r.checkIn||"—"}</td>
+      <td>${r.checkOut||"—"}</td>
+      <td>${((r.overtimeMinutes||0)/60).toFixed(2)}</td>
+      <td>${((r.lateMinutes||0)/60).toFixed(2)}</td>
+      <td>${((r.earlyLeaveMinutes||0)/60).toFixed(2)}</td>
+      <td>${fmtMoney(r.advancesOnDate||0)}</td>
+      <td>${exMap[r.excuseType]||"بدون"}</td>
+      <td>${r.outOfFactory?"نعم":"لا"}</td>
+      <td>${(r.note||"").replace(/</g,"&lt;")}</td>
+    </tr>`;
+  }).join("");
+
+  const html = `<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>صك قبض - ${emp.name}</title>
+  <style>
+    body{font-family: ui-sans-serif, system-ui, "Noto Kufi Arabic","Noto Sans Arabic", Tahoma, Arial; background:#fff; color:#111; margin:0; padding:18px}
+    .row{display:flex; gap:14px; align-items:center; justify-content:space-between; flex-wrap:wrap}
+    .box{border:1px solid #e6e6e6; border-radius:14px; padding:14px}
+    .logo{width:54px;height:54px;border-radius:14px; overflow:hidden; border:1px solid #eee; display:grid; place-items:center}
+    .logo img{width:100%;height:100%;object-fit:cover}
+    h1{margin:0; font-size:20px}
+    p{margin:6px 0 0; color:#333; font-size:12px}
+    table{width:100%; border-collapse:collapse; margin-top:10px}
+    th,td{border-bottom:1px solid #eee; padding:8px; font-size:12px; text-align:right}
+    th{background:#fafafa}
+    .k{color:#666; font-size:12px}
+    .v{font-weight:800}
+    .sig{display:flex; gap:14px; margin-top:16px}
+    .sig .s{flex:1; border-top:1px dashed #bbb; padding-top:10px; text-align:center; color:#333}
+    @media print{ body{padding:0} .noPrint{display:none} }
+  </style>
+  </head><body>
+    <div class="noPrint" style="margin-bottom:10px">
+      <button onclick="window.print()" style="padding:10px 12px; border-radius:12px; border:1px solid #ddd; background:#0b1220; color:#fff; font-weight:800; cursor:pointer">طباعة / حفظ PDF</button>
+    </div>
+
+    <div class="box">
+      <div class="row">
+        <div class="row" style="gap:10px">
+          <div class="logo">${logo ? `<img src="${logo}"/>` : `<span style="font-weight:900;color:#0b1220">🏢</span>`}</div>
+          <div>
+            <h1>صك قبض راتب</h1>
+            <p>${companyName}</p>
+          </div>
+        </div>
+        <div style="text-align:left">
+          <div class="k">الشهر</div>
+          <div class="v">${ym}</div>
+        </div>
+      </div>
+
+      <div style="margin-top:12px" class="row">
+        <div><span class="k">الموظف:</span> <span class="v">${emp.name}</span></div>
+        <div><span class="k">القسم:</span> <span class="v">${dept?dept.name:"—"}</span></div>
+        <div><span class="k">الراتب الأساسي:</span> <span class="v">${fmtMoney(payroll.totals.baseSalary)}</span></div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>التاريخ</th><th>الدخول</th><th>الخروج</th><th>العذر</th><th>خارج المصنع</th><th>ملاحظة</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rowsHtml || `<tr><td colspan="6" style="text-align:center;color:#666">لا توجد سجلات لهذا الشهر</td></tr>`}
+        </tbody>
+      </table>
+
+      <div class="row" style="margin-top:12px">
+        <div><span class="k">إضافي (دقائق):</span> <span class="v">${payroll.totals.overtimeMinutes}</span></div>
+        <div><span class="k">قيمة الإضافي:</span> <span class="v">${fmtMoney(payroll.totals.overtimeValue)}</span></div>
+        <div><span class="k">تأخير (دقائق):</span> <span class="v">${payroll.totals.lateMinutes}</span></div>
+        <div><span class="k">خصم التأخير:</span> <span class="v">${fmtMoney(payroll.totals.lateDeduction)}</span></div>
+        <div><span class="k">مبكر (دقائق):</span> <span class="v">${payroll.totals.earlyLeaveMinutes}</span></div>
+        <div><span class="k">خصم المبكر:</span> <span class="v">${fmtMoney(payroll.totals.earlyDeduction)}</span></div>
+        <div><span class="k">غياب بدون عذر (أيام):</span> <span class="v">${payroll.totals.absentNoExcuseDays}</span></div>
+        <div><span class="k">خصم الغياب:</span> <span class="v">${fmtMoney(payroll.totals.absenceNoExcuseDeduction)}</span></div>
+        <div><span class="k">السلف:</span> <span class="v">${fmtMoney(payroll.totals.advances)}</span></div>
+        <div style="flex:1"></div>
+        <div style="min-width:220px"><span class="k">المستحق النهائي:</span> <span class="v" style="font-size:16px">${fmtMoney(payroll.totals.net)}</span></div>
+      </div>
+
+      <div class="sig">
+        <div class="s">توقيع الموظف</div>
+        <div class="s">توقيع الإدارة</div>
+      </div>
+    </div>
+  </body></html>`;
+
+  const w = window.open("", "_blank");
+  w.document.open();
+  w.document.write(html);
+  w.document.close();
+}
+
+/* ====== UI helpers ====== */
+function setBrandFromCompany(){
+  const app = ensureApp();
+  const name = (app.company?.companyName||"").trim() || "نظام الدوام والرواتب";
+  const elName = document.querySelector("[data-company-name]");
+  if(elName) elName.textContent = name;
+  const img = document.querySelector("[data-company-logo]");
+  if(img){
+    if(app.company?.companyLogo){
+      img.src = app.company.companyLogo;
+      img.style.display="block";
+    }else{
+      img.removeAttribute("src");
+      img.style.display="none";
+    }
+  }
+}
+function drawerInit(){
+  const overlay = document.getElementById("drawerOverlay");
+  const drawer = document.getElementById("drawer");
+  const btn = document.getElementById("btnMenu");
+  function close(){ overlay?.classList.remove("show"); drawer?.classList.remove("show"); }
+  function open(){ overlay?.classList.add("show"); drawer?.classList.add("show"); }
+  btn?.addEventListener("click", open);
+  overlay?.addEventListener("click", close);
+  document.addEventListener("keydown", (e)=>{ if(e.key==="Escape") close(); });
+  return {open,close};
+}
+function switchSection(id){
+  document.querySelectorAll("[data-section]").forEach(el=>el.style.display="none");
+  const target = document.querySelector(`[data-section="${id}"]`);
+  if(target) target.style.display="block";
+  document.querySelectorAll("[data-nav]").forEach(b=>{
+    b.classList.toggle("active", b.getAttribute("data-nav")===id);
+  });
+  sessionStorage.setItem(`${APP_KEY}:lastSection`, id);
+}
+function restoreLastSection(defaultId){
+  const id = sessionStorage.getItem(`${APP_KEY}:lastSection`) || defaultId;
+  switchSection(id);
+}
+
+</script>
+</head>
+<body>
+<div class="container">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo"><img data-company-logo style="display:none"/></div>
+      <div class="txt">
+        <b data-company-name>نظام الدوام والرواتب</b>
+        <span>لوحة الإدارة • Admin</span>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="btn ghost" id="btnMenu">☰</button>
+</div>
+  </div>
+
+  <div id="drawerOverlay" class="drawerOverlay"></div>
+  <aside id="drawer" class="drawer" aria-label="القائمة">
+    <div class="brand" style="justify-content:space-between">
+      <div class="txt">
+        <b>القائمة</b>
+        <span>Admin</span>
+      </div>
+      <button class="btn ghost" id="btnCloseDrawer">✕</button>
+    </div>
+    <div class="nav">
+      <button data-nav="company" class="active">بيانات الشركة</button>
+      <button data-nav="departments">الأقسام</button>
+      <button data-nav="employees">الموظفون</button>
+      <button data-nav="managers">المدراء</button>
+      <button data-nav="settings">إعدادات الشهر</button>
+      <button data-nav="attendance">تسجيل الدوام</button>
+      <button data-nav="advances">السلف</button>
+      <button data-nav="payroll">الرواتب</button>
+      <button data-nav="report">التقرير الشهري</button>
+      <button data-nav="importexport">Excel / CSV</button>
+    </div>
+      <button id="btnLogout" class="danger">خروج</button>
+    <div class="small">التخزين محلي (LocalStorage) — هذا الجهاز فقط.</div>
+  </aside>
+
+  <div style="height:14px"></div>
+
+  <!-- COMPANY -->
+  <section data-section="company" class="card">
+    <div class="hd">
+      <div>
+        <h2>بيانات الشركة</h2>
+        <p>اسم الشركة + شعار يظهر في صك القبض وبوابة الموظف.</p>
+      </div>
+      <span class="tag good">مهم</span>
+    </div>
+    <div class="bd">
+      <div class="row cols2">
+        <div class="field">
+          <label>اسم الشركة</label>
+          <input id="companyName" placeholder="اكتب اسم الشركة"/>
+        </div>
+        <div class="field">
+          <label>شعار الشركة (صورة)</label>
+          <input id="companyLogo" type="file" accept="image/*"/>
+          <div class="small">يتم حفظ الشعار داخل LocalStorage (Base64).</div>
+        </div>
+      </div>
+      <div class="row cols2" style="margin-top:10px">
+        <div class="field">
+          <label>معاينة الشعار</label>
+          <div class="card" style="padding:10px; border-radius:18px">
+            <div class="logo" style="width:76px;height:76px"><img id="logoPreview" style="display:none"/></div>
+          </div>
+        </div>
+        <div class="field" style="justify-content:flex-end">
+          <label>&nbsp;</label>
+          <button class="btn primary" id="saveCompany">حفظ</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DEPARTMENTS -->
+  <section data-section="departments" class="card" style="display:none">
+    <div class="hd">
+      <div>
+        <h2>الأقسام</h2>
+        <p>إضافة / تعديل / حذف.</p>
+      </div>
+    </div>
+    <div class="bd">
+      <div class="row cols2">
+        <div class="field">
+          <label>اسم القسم</label>
+          <input id="deptName" placeholder="مثال: مبيعات"/>
+        </div>
+        <div class="field" style="justify-content:flex-end">
+          <label>&nbsp;</label>
+          <button class="btn green" id="addDept">إضافة</button>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="tableWrap">
+        <table>
+          <thead><tr><th>#</th><th>القسم</th><th>إجراءات</th></tr></thead>
+          <tbody id="deptTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- EMPLOYEES -->
+  <section data-section="employees" class="card" style="display:none">
+    <div class="hd">
+      <div>
+        <h2>الموظفون</h2>
+        <p>الاسم فريد + القسم + الراتب + الحالة.</p>
+      </div>
+    </div>
+    <div class="bd">
+      <div class="row cols5">
+        <div class="field">
+          <label>اسم الموظف (فريد)</label>
+          <input id="empNameNew" placeholder="اسم الموظف"/>
+        </div>
+        <div class="field">
+          <label>القسم</label>
+          <select id="empDept"></select>
+        </div>
+        <div class="field">
+          <label>الراتب الشهري</label>
+          <input id="empSalary" type="number" min="0" step="0.01" placeholder="0"/>
+        </div>
+        <div class="field">
+          <label>الحالة</label>
+          <select id="empActive">
+            <option value="1" selected>نشط</option>
+            <option value="0">غير نشط</option>
+          </select>
+        </div>
+      </div>
+      <div class="row cols2" style="margin-top:10px">
+        <div class="field" style="grid-column:1/-1">
+          <label>ملاحظة (اختياري)</label>
+          <textarea id="empNote" placeholder="ملاحظة داخلية (اختياري)"></textarea>
+        </div>
+      </div>
+      <div class="row cols2">
+        <button class="btn green" id="addEmp">حفظ الموظف</button>
+        <button class="btn ghost" id="clearEmpForm">تفريغ</button>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="tableWrap">
+        <table>
+          <thead><tr>
+            <th>م</th><th>الاسم</th><th>القسم</th><th>الراتب</th><th>الحالة</th><th>ملاحظة</th><th>إجراءات</th>
+          </tr></thead>
+          <tbody id="empTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- MANAGERS -->
+  <section data-section="managers" class="card" style="display:none">
+    <div class="hd">
+      <div>
+        <h2>المدراء</h2>
+        <p>إضافة / تعديل / حذف (مع وجود مدير افتراضي).</p>
+      </div>
+    </div>
+    <div class="bd">
+      <div class="row cols3">
+        <div class="field">
+          <label>Username</label>
+          <input id="mgrUsername" placeholder="manager2"/>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input id="mgrPassword" type="password" placeholder="••••••••"/>
+        </div>
+        <div class="field" style="justify-content:flex-end">
+          <label>&nbsp;</label>
+          <button class="btn green" id="addMgr">إضافة</button>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="tableWrap">
+        <table>
+          <thead><tr><th>م</th><th>Username</th><th>إجراءات</th></tr></thead>
+          <tbody id="mgrTable"></tbody>
+        </table>
+      </div>
+      <div class="small">ملاحظة: لا يمكن حذف مدير <code class="inline">manager</code> الافتراضي (يمكن تعديل كلمة مروره).</div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section data-section="settings" class="card" style="display:none">
+    <div class="hd">
+      <div>
+        <h2>إعدادات الشهر</h2>
+        <p>لكل شهر (YYYY-MM) — تؤثر على الحسابات.</p>
+      </div>
+    </div>
+    <div class="bd">
+      <div class="row cols4">
+        <div class="field">
+          <label>الشهر (YYYY-MM)</label>
+          <input id="setMonth" placeholder="2026-02"/>
+        </div>
+        <div class="field">
+          <label>عدد أيام الشهر</label>
+          <select id="daysInMonth">
+            <option>28</option><option>29</option><option selected>30</option><option>31</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ساعات العمل بالشهر</label>
+          <input id="workHoursInMonth" type="number" min="1" step="1"/>
+        </div>
+        <div class="field">
+          <label>وقت الدوام</label>
+          <div class="row cols2">
+            <input id="shiftStart" placeholder="09:00"/>
+            <input id="shiftEnd" placeholder="17:00"/>
+          </div>
+        </div>
+      </div>
+
+      <div class="row cols4" style="margin-top:10px">
+        <div class="field">
+          <label>سماح التأخير (دقائق)</label>
+          <input id="lateGraceMinutes" type="number" min="0" step="1"/>
+        </div>
+        <div class="field">
+          <label>سماح الانصراف المبكر (دقائق)</label>
+          <input id="earlyLeaveGraceMinutes" type="number" min="0" step="1"/>
+        </div>
+        <div class="field">
+          <label>معامل خصم التأخير</label>
+          <input id="latePenaltyMultiplier" type="number" min="0" step="0.1"/>
+        </div>
+        <div class="field">
+          <label>معامل خصم المبكر</label>
+          <input id="earlyPenaltyMultiplier" type="number" min="0" step="0.1"/>
+        </div>
+      </div>
+
+      <div class="row cols3" style="margin-top:10px">
+        <div class="field">
+          <label>معامل الإضافي</label>
+          <input id="overtimeMultiplier" type="number" min="0" step="0.1"/>
+        </div>
+        <div class="field">
+          <label>معامل الغياب بدون عذر ⭐</label>
+          <input id="absenceNoExcuseFactor" type="number" min="0" step="0.1" placeholder="1.0"/>
+        </div>
+        <div class="field" style="justify-content:flex-end">
+          <label>&nbsp;</label>
+          <button class="btn primary" id="saveSettings">حفظ الإعدادات</button>
+        </div>
+      </div>
+
+      <div class="small">⭐ إذا الموظف لم يداوم ولا يوم في الشهر → المستحق النهائي = 0.</div>
+    </div>
+  </section>
+
+  <!-- ATTENDANCE -->
+  <section data-section="attendance" class="card" style="display:none">
+    <div class="hd">
+      <div>
+        <h2>تسجيل الدوام</h2>
+        <p>تسجيل دخول/خروج + أعذار + مشوار خارج المصنع.</p>
+      </div>
+    </div>
+    <div class="bd">
+      <div class="row cols4">
+        <div class="field">
+          <label>الموظف</label>
+          <select id="attEmp"></select>
+        </div>
+        <div class="field">
+          <label>التاريخ</label>
+          <input id="attDate" type="date"/>
+        </div>
+        <div class="field">
+          <label>الدخول</label>
+          <input id="attIn" placeholder="09:00"/>
+        </div>
+        <div class="field">
+          <label>الخروج</label>
+          <input id="attOut" placeholder="17:00"/>
+        </div>
+      </div>
+
+      <div class="row cols3" style="margin-top:10px">
+        <div class="field">
+          <label>نوع العذر</label>
+          <select id="excuseType">
+            <option value="none" selected>بدون</option>
+            <option value="late_excused">تأخير بعذر</option>
+            <option value="early_excused">انصراف مبكر بعذر</option>
+            <option value="absent_excused">غياب بعذر</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>مشوار خارج المصنع</label>
+          <select id="outOfFactory">
+            <option value="0" selected>لا</option>
+            <option value="1">نعم</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>ملاحظة داخلية</label>
+          <input id="attNote" placeholder="اختياري"/>
+        </div>
+      </div>
+
+      <div class="row cols2" style="margin-top:10px">
+        <button class="btn green" id="saveAttendance">حفظ</button>
+        <button class="btn red" id="deleteAttendance">حذف السجل</button>
+      </div>
+
+      <hr class="sep"/>
+      <div class="row cols3">
+        <div class="field">
+          <label>عرض سجلات شهر</label>
+          <input id="attMonthFilter" placeholder="YYYY-MM"/>
+        </div>
+        <div class="field" style="justify-content:flex-end">
+          <label>&nbsp;</label>
+          <button class="btn ghost" id="refreshAttTable">تحديث الجدول</button>
+        </div>
+        <div class="field" style="justify-content:flex-end">
+          <label>&nbsp;</label>
+          <button class="btn primary" id="exportAttCsv">تصدير CSV لهذا الشهر</button>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="tableWrap">
+        <table>
+          <thead><tr>
+            <th>التاريخ</th><th>اليوم</th><th>الموظف</th><th>الدخول</th><th>الخروج</th><th>إضافي</th><th>تأخير</th><th>مبكر</th><th>سلف</th><th>العذر</th><th>خارج</th><th>ملاحظة</th>
+          </tr></thead>
+          <tbody id="attTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ADVANCES -->
+  <section data-section="advances" class="card" style="display:none">
+    <div class="hd">
+      <div>
+        <h2>السلف</h2>
+        <p>تخصم من الراتب النهائي.</p>
+      </div>
+    </div>
+    <div class="bd">
+      <div class="row cols4">
+        <div class="field">
+          <label>تاريخ السلفة</label>
+          <input id="advDate" type="date"/>
+        </div>
+        <div class="field">
+          <label>الشهر</label>
+          <input id="advMonth" placeholder="YYYY-MM" inputmode="numeric"/>
+        </div>
+        <div class="field">
+          <label>الموظف</label>
+          <select id="advEmp"></select>
+        </div>
+        <div class="field">
+          <label>المبلغ</label>
+          <input id="advAmount" type="number" min="0" step="0.01" placeholder="0"/>
+        </div>
+        <div class="field">
+          <label>ملاحظة</label>
+          <input id="advNote" placeholder="اختياري"/>
+        </div>
+      </div>
+      <div class="row cols2" style="margin-top:10px">
+        <button class="btn green" id="saveAdvance">حفظ</button>
+        <button class="btn red" id="deleteAdvance">حذف</button>
+      </div>
+
+      <div class="row cols3" style="margin-top:10px">
+        <div class="field">
+          <label>فلترة حسب الموظف</label>
+          <select id="advFilter"></select>
+        </div>
+        <div class="field">
+          <label>بحث بالاسم</label>
+          <input id="advSearch" placeholder="اكتب جزء من الاسم"/>
+        </div>
+        <div class="field" style="justify-content:flex-end">
+          <label>مجموع السلف (بعد الفلترة)</label>
+          <div class="pill"><b id="advTotal">0</b></div>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="tableWrap">
+        <table>
+          <thead><tr><th>التاريخ</th><th>الشهر</th><th>الموظف</th><th>المبلغ</th><th>ملاحظة</th></tr></thead>
+          <tbody id="advTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAYROLL -->
+  <section data-section="payroll" class="card" style="display:none">
+    <div class="hd">
+      <div>
+        <h2>الرواتب</h2>
+        <p>حساب تلقائي حسب إعدادات الشهر وسجلات الدوام والسلف.</p>
+      </div>
+      <span class="tag warn">صك قبض PDF</span>
+    </div>
+    <div class="bd">
+      <div class="row cols3">
+        <div class="field">
+          <label>الشهر (YYYY-MM)</label>
+          <input id="payMonth" placeholder="YYYY-MM"/>
+        </div>
+        <div class="field" style="justify-content:flex-end">
+          <label>&nbsp;</label>
+          <button class="btn primary" id="calcPayroll">تحديث الرواتب</button>
+        </div>
+        <div class="field" style="justify-content:flex-end">
+          <label>&nbsp;</label>
+          <button class="btn ghost" id="exportPayrollCsv">تصدير تقرير رواتب CSV</button>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="tableWrap">
+        <table>
+          <thead><tr>
+            <th>الاسم</th><th>القسم</th><th>الأساسي</th><th>إضافي</th><th>تأخير</th><th>مبكر</th><th>غياب بدون عذر</th><th>السلف</th><th>المستحق</th><th>PDF</th>
+          </tr></thead>
+          <tbody id="payTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- REPORT -->
+  <section data-section="report" class="card" style="display:none">
+    <div class="hd">
+      <div>
+        <h2>التقرير الشهري</h2>
+        <p>جدول شامل + إجمالي مستحقات الجميع.</p>
+      </div>
+    </div>
+    <div class="bd">
+      <div class="row cols3">
+        <div class="field">
+          <label>الشهر (YYYY-MM)</label>
+          <input id="repMonth" placeholder="YYYY-MM"/>
+        </div>
+        <div class="field" style="justify-content:flex-end">
+          <label>&nbsp;</label>
+          <button class="btn primary" id="buildReport">إنشاء التقرير</button>
+        </div>
+        <div class="field">
+          <label>إجمالي المستحقات</label>
+          <input id="repTotal" readonly/>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="tableWrap">
+        <table>
+          <thead><tr>
+            <th>م</th><th>اسم الموظف</th><th>ساعات العمل</th><th>قيمة الساعات</th>
+            <th>غياب بعذر</th><th>قيمة</th>
+            <th>غياب بدون عذر</th><th>قيمة</th>
+            <th>إضافي</th><th>قيمة</th>
+            <th>تأخير</th><th>قيمة</th>
+            <th>مبكر</th><th>قيمة</th>
+            <th>سلف</th><th>المستحق</th>
+          </tr></thead>
+          <tbody id="repTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPORT/EXPORT -->
+  <section data-section="importexport" class="card" style="display:none">
+    <div class="hd">
+      <div>
+        <h2>Import / Export</h2>
+        <p>JSON نسخة احتياطية + CSV موظفين/دوام.</p>
+      </div>
+    </div>
+    <div class="bd">
+      <div class="row cols2">
+        <div class="card" style="padding:14px; border-radius:18px">
+          <b>نسخة احتياطية كاملة (JSON)</b>
+          <div style="height:10px"></div>
+          <div class="row cols2">
+            <button class="btn primary" id="exportJson">تصدير JSON</button>
+            <label class="btn green" style="cursor:pointer">
+              استيراد JSON
+              <input id="importJson" type="file" accept="application/json" style="display:none"/>
+            </label>
+          </div>
+        </div>
+
+        <div class="card" style="padding:14px; border-radius:18px">
+          <b>CSV (يفتح في Excel)</b>
+          <div style="height:10px"></div>
+          <div class="row cols2">
+            <button class="btn ghost" id="exportEmployeesCsv">تصدير قالب الموظفين</button>
+            <label class="btn green" style="cursor:pointer">
+              استيراد CSV موظفين
+              <input id="importEmployeesCsv" type="file" accept=".csv,text/csv" style="display:none"/>
+            </label>
+          </div>
+          <div style="height:10px"></div>
+          <div class="row cols2">
+            <button class="btn ghost" id="exportMonthAttendanceCsv">تصدير دوام شهر</button>
+            <label class="btn green" style="cursor:pointer">
+              استيراد CSV دوام
+              <input id="importAttendanceCsv" type="file" accept=".csv,text/csv" style="display:none"/>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="small">ملاحظة: استيراد الموظفين يعمل Upsert حسب الاسم (يعدّل الموجود ويضيف الجديد).</div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const s = requireRole(["admin"]);
+if(!s){ location.href="index.html"; }
+
+ensureApp();
+setBrandFromCompany();
+
+// drawer
+const dr = drawerInit();
+document.getElementById("btnCloseDrawer").addEventListener("click", ()=>{ 
+  document.getElementById("drawerOverlay").classList.remove("show");
+  document.getElementById("drawer").classList.remove("show");
+});
+document.querySelectorAll("[data-nav]").forEach(b=>{
+  b.addEventListener("click", ()=>{
+    switchSection(b.getAttribute("data-nav"));
+    document.getElementById("drawerOverlay").classList.remove("show");
+    document.getElementById("drawer").classList.remove("show");
+  });
+});
+restoreLastSection("company");
+
+document.getElementById("btnLogout").addEventListener("click", ()=>{
+  sessionClear(); location.href="index.html";
+});
+
+/* ===== Company ===== */
+function renderCompany(){
+  const app = ensureApp();
+  document.getElementById("companyName").value = app.company.companyName || "";
+  const img = document.getElementById("logoPreview");
+  if(app.company.companyLogo){
+    img.src = app.company.companyLogo; img.style.display="block";
+  }else{
+    img.removeAttribute("src"); img.style.display="none";
+  }
+}
+renderCompany();
+
+document.getElementById("saveCompany").addEventListener("click", async ()=>{
+  const name = document.getElementById("companyName").value.trim();
+  const file = document.getElementById("companyLogo").files[0];
+  if(file){
+    const data = await (new Promise((res,rej)=>{
+      const fr=new FileReader();
+      fr.onload=()=>res(String(fr.result||""));
+      fr.onerror=()=>rej(fr.error||new Error("FileReader error"));
+      fr.readAsDataURL(file);
+    }));
+    updateApp(app=>{
+      app.company.companyName = name;
+      app.company.companyLogo = data;
+    });
+  }else{
+    updateApp(app=>{
+      app.company.companyName = name;
+    });
+  }
+  setBrandFromCompany();
+  renderCompany();
+  toast("تم حفظ بيانات الشركة.");
+});
+
+/* ===== Departments ===== */
+function renderDepartments(){
+  const app = ensureApp();
+  const tb = document.getElementById("deptTable");
+  tb.innerHTML = "";
+  app.departments.forEach((d,i)=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML = `<td>${i+1}</td>
+      <td>${d.name}</td>
+      <td>
+        <button class="btn ghost" data-edit="${d.id}">تعديل</button>
+        <button class="btn red" data-del="${d.id}">حذف</button>
+      </td>`;
+    tb.appendChild(tr);
+  });
+
+  // selects
+  const deptSel = document.getElementById("empDept");
+  deptSel.innerHTML = `<option value="">—</option>` + app.departments.map(d=>`<option value="${d.id}">${d.name}</option>`).join("");
+  document.getElementById("attEmp").innerHTML = app.employees.filter(e=>e.active!==false).map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+  document.getElementById("advEmp").innerHTML = app.employees.filter(e=>e.active!==false).map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+}
+renderDepartments();
+
+document.getElementById("addDept").addEventListener("click", ()=>{
+  const name = document.getElementById("deptName").value.trim();
+  if(!name){ toast("اكتب اسم القسم.", "warn"); return; }
+  updateApp(app=>{
+    if(app.departments.some(d=>d.name===name)) return;
+    app.departments.push({id:uid("dep"), name});
+  });
+  document.getElementById("deptName").value="";
+  renderDepartments(); renderEmployees();
+  toast("تم إضافة القسم.");
+});
+
+document.getElementById("deptTable").addEventListener("click", (e)=>{
+  const id = e.target.getAttribute("data-del") || e.target.getAttribute("data-edit");
+  if(!id) return;
+  if(e.target.hasAttribute("data-del")){
+    if(!confirm("حذف القسم؟")) return;
+    updateApp(app=>{
+      app.departments = app.departments.filter(d=>d.id!==id);
+      // detach department from employees
+      app.employees.forEach(emp=>{ if(emp.departmentId===id) emp.departmentId=""; });
+    });
+    renderDepartments(); renderEmployees();
+    toast("تم حذف القسم.", "warn");
+  }else{
+    const app = ensureApp();
+    const d = app.departments.find(x=>x.id===id);
+    const name = prompt("اسم القسم:", d?.name || "");
+    if(name==null) return;
+    updateApp(app=>{
+      const dd = app.departments.find(x=>x.id===id);
+      if(dd) dd.name = name.trim();
+    });
+    renderDepartments(); renderEmployees();
+    toast("تم التعديل.");
+  }
+});
+
+/* ===== Employees ===== */
+let editingEmpId = null;
+
+function renderEmployees(){
+  const app = ensureApp();
+  const tb = document.getElementById("empTable");
+  tb.innerHTML="";
+  const deptById = Object.fromEntries(app.departments.map(d=>[d.id,d.name]));
+  app.employees.forEach((emp,i)=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML = `<td>${i+1}</td>
+      <td>${emp.name}</td>
+      <td>${deptById[emp.departmentId] || "—"}</td>
+      <td>${fmtMoney(emp.monthlySalary||0)}</td>
+      <td>${emp.active===false ? `<span class="tag bad">غير نشط</span>` : `<span class="tag good">نشط</span>`}</td>
+      <td>${(emp.notes||"")}</td>
+      <td>
+        <button class="btn ghost" data-edit="${emp.id}">تعديل</button>
+        <button class="btn red" data-del="${emp.id}">حذف</button>
+      </td>`;
+    tb.appendChild(tr);
+  });
+  // refresh employee selects (attendance/advances)
+  document.getElementById("attEmp").innerHTML = app.employees.filter(e=>e.active!==false).map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+  document.getElementById("advEmp").innerHTML = app.employees.filter(e=>e.active!==false).map(e=>`<option value="${e.id}">${e.name}</option>`).join("");
+}
+renderEmployees();
+
+function clearEmpForm(){
+  editingEmpId=null;
+  document.getElementById("empNameNew").value="";
+  document.getElementById("empDept").value="";
+  document.getElementById("empSalary").value="";
+  document.getElementById("empActive").value="1";
+  document.getElementById("empNote").value="";
+}
+document.getElementById("clearEmpForm").addEventListener("click", clearEmpForm);
+
+document.getElementById("addEmp").addEventListener("click", ()=>{
+  const name = document.getElementById("empNameNew").value.trim();
+  const departmentId = document.getElementById("empDept").value;
+  const monthlySalary = Number(document.getElementById("empSalary").value||0);
+  const active = document.getElementById("empActive").value==="1";
+  const notes = document.getElementById("empNote").value.trim();
+  if(!name){ toast("اكتب اسم الموظف.", "warn"); return; }
+
+  updateApp(app=>{
+    // unique by name
+    const existing = app.employees.find(e=>e.name===name);
+    if(editingEmpId){
+      const emp = app.employees.find(e=>e.id===editingEmpId);
+      if(!emp) return;
+      // if changing name ensure unique
+      if(existing && existing.id!==editingEmpId) { throw new Error("اسم الموظف موجود بالفعل."); }
+      emp.name=name; emp.departmentId=departmentId; emp.monthlySalary=monthlySalary; emp.active=active; emp.notes=notes;
+    }else{
+      if(existing) { throw new Error("اسم الموظف موجود بالفعل."); }
+      app.employees.push({ id:uid("emp"), name, departmentId, monthlySalary, active, notes });
+    }
+  });
+  clearEmpForm();
+  renderEmployees();
+  toast("تم حفظ الموظف.");
+});
+
+document.getElementById("empTable").addEventListener("click", (e)=>{
+  const id = e.target.getAttribute("data-edit") || e.target.getAttribute("data-del");
+  if(!id) return;
+  if(e.target.hasAttribute("data-del")){
+    if(!confirm("حذف الموظف؟ سيظل سجل الدوام محفوظًا لكنه لن يظهر بالاختيارات.")) return;
+    updateApp(app=>{
+      app.employees = app.employees.filter(x=>x.id!==id);
+      // also remove advances entries for that employee
+      for(const ym of Object.keys(app.advances||{})){
+        if(app.advances[ym]) delete app.advances[ym][id];
+      }
+      // remove attendance entries
+      for(const dateKey of Object.keys(app.attendance||{})){
+        if(app.attendance[dateKey]) delete app.attendance[dateKey][id];
+      }
+    });
+    renderEmployees(); renderDepartments();
+    toast("تم حذف الموظف.", "warn");
+  }else{
+    const app=ensureApp();
+    const emp = app.employees.find(x=>x.id===id);
+    if(!emp) return;
+    editingEmpId = id;
+    document.getElementById("empNameNew").value = emp.name;
+    document.getElementById("empDept").value = emp.departmentId || "";
+    document.getElementById("empSalary").value = emp.monthlySalary ?? 0;
+    document.getElementById("empActive").value = emp.active===false ? "0" : "1";
+    document.getElementById("empNote").value = emp.notes || "";
+    toast("تم تحميل بيانات الموظف للتعديل.");
+  }
+});
+
+/* ===== Managers ===== */
+function renderManagers(){
+  const app = ensureApp();
+  const tb = document.getElementById("mgrTable");
+  tb.innerHTML="";
+  app.managers.forEach((m,i)=>{
+    const cannotDelete = m.username==="manager";
+    const tr=document.createElement("tr");
+    tr.innerHTML = `<td>${i+1}</td>
+      <td>${m.username}</td>
+      <td>
+        <button class="btn ghost" data-edit="${m.id}">تعديل</button>
+        ${cannotDelete ? `<span class="tag warn">افتراضي</span>` : `<button class="btn red" data-del="${m.id}">حذف</button>`}
+      </td>`;
+    tb.appendChild(tr);
+  });
+}
+renderManagers();
+
+document.getElementById("addMgr").addEventListener("click", ()=>{
+  const u = document.getElementById("mgrUsername").value.trim();
+  const p = document.getElementById("mgrPassword").value;
+  if(!u || !p){ toast("اكتب username و password.", "warn"); return; }
+  if(u==="admin"){ toast("لا يمكن استخدام username=admin.", "bad"); return; }
+  updateApp(app=>{
+    if(app.managers.some(m=>m.username===u)) throw new Error("اسم المستخدم موجود.");
+    app.managers.push({id:uid("mgr"), username:u, password:p});
+  });
+  document.getElementById("mgrUsername").value="";
+  document.getElementById("mgrPassword").value="";
+  renderManagers();
+  toast("تم إضافة المدير.");
+});
+
+document.getElementById("mgrTable").addEventListener("click", (e)=>{
+  const editId = e.target.getAttribute("data-edit");
+  const delId = e.target.getAttribute("data-del");
+  if(editId){
+    const app=ensureApp();
+    const m=app.managers.find(x=>x.id===editId);
+    const newPass = prompt(`تعديل كلمة المرور لـ ${m.username}:`, m.password);
+    if(newPass==null) return;
+    updateApp(app=>{
+      const mm=app.managers.find(x=>x.id===editId);
+      if(mm) mm.password = newPass;
+    });
+    renderManagers();
+    toast("تم تعديل كلمة المرور.");
+  }
+  if(delId){
+    if(!confirm("حذف المدير؟")) return;
+    updateApp(app=>{
+      app.managers = app.managers.filter(x=>x.id!==delId);
+    });
+    renderManagers();
+    toast("تم الحذف.", "warn");
+  }
+});
+
+/* ===== Month Settings ===== */
+function loadSettingsForm(){
+  const app=ensureApp();
+  const ym = yyyymm();
+  document.getElementById("setMonth").value = ym;
+  const s = app.monthSettings[ym] || {};
+  document.getElementById("daysInMonth").value = String(s.daysInMonth||30);
+  document.getElementById("workHoursInMonth").value = s.workHoursInMonth ?? 176;
+  document.getElementById("shiftStart").value = s.shiftStart || "09:00";
+  document.getElementById("shiftEnd").value = s.shiftEnd || "17:00";
+  document.getElementById("lateGraceMinutes").value = s.lateGraceMinutes ?? 10;
+  document.getElementById("earlyLeaveGraceMinutes").value = s.earlyLeaveGraceMinutes ?? 10;
+  document.getElementById("latePenaltyMultiplier").value = s.latePenaltyMultiplier ?? 1.5;
+  document.getElementById("earlyPenaltyMultiplier").value = s.earlyPenaltyMultiplier ?? 1.5;
+  document.getElementById("overtimeMultiplier").value = s.overtimeMultiplier ?? 1.5;
+  document.getElementById("absenceNoExcuseFactor").value = s.absenceNoExcuseFactor ?? 1.0;
+}
+loadSettingsForm();
+
+document.getElementById("saveSettings").addEventListener("click", ()=>{
+  const ym = document.getElementById("setMonth").value.trim();
+  if(!/^\d{4}-\d{2}$/.test(ym)){ toast("اكتب الشهر بصيغة YYYY-MM.", "warn"); return; }
+  const obj = {
+    daysInMonth: Number(document.getElementById("daysInMonth").value),
+    workHoursInMonth: Number(document.getElementById("workHoursInMonth").value||176),
+    shiftStart: document.getElementById("shiftStart").value.trim(),
+    shiftEnd: document.getElementById("shiftEnd").value.trim(),
+    lateGraceMinutes: Number(document.getElementById("lateGraceMinutes").value||0),
+    earlyLeaveGraceMinutes: Number(document.getElementById("earlyLeaveGraceMinutes").value||0),
+    latePenaltyMultiplier: Number(document.getElementById("latePenaltyMultiplier").value||1.5),
+    earlyPenaltyMultiplier: Number(document.getElementById("earlyPenaltyMultiplier").value||1.5),
+    overtimeMultiplier: Number(document.getElementById("overtimeMultiplier").value||1.5),
+    absenceNoExcuseFactor: Number(document.getElementById("absenceNoExcuseFactor").value||1.0)
+  };
+  // validate times
+  if(parseTimeToMinutes(obj.shiftStart)==null || parseTimeToMinutes(obj.shiftEnd)==null){
+    toast("وقت الدوام غير صحيح (مثال 09:00).", "bad"); return;
+  }
+  updateApp(app=>{
+    app.monthSettings[ym] = obj;
+  });
+  toast("تم حفظ إعدادات الشهر.");
+});
+
+/* ===== Attendance ===== */
+document.getElementById("attDate").value = nowISODate();
+document.getElementById("attMonthFilter").value = yyyymm();
+
+function getEmpNameById(id){
+  const app=ensureApp();
+  const e=(app.employees||[]).find(x=>x.id===id);
+  return e?e.name:"—";
+}
+
+function arDayName(dateStr){
+  try{
+    const d = new Date(dateStr+"T00:00:00");
+    const names = ["الأحد","الإثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+    return names[d.getDay()] || "";
+  }catch(e){ return ""; }
+}
+function sumAdvancesForMonth(app, ym, empId){
+  return (app.advancesList||[]).filter(a=>a.ym===ym && a.employeeId===empId).reduce((s,a)=>s+Number(a.amount||0),0);
+}
+function sumAdvancesOnDate(app, dateStr, empId){
+  return (app.advancesList||[]).filter(a=>a.date===dateStr && a.employeeId===empId).reduce((s,a)=>s+Number(a.amount||0),0);
+}
+
+
+function loadAttendanceForm(){
+  const empId = document.getElementById("attEmp").value;
+  const date = document.getElementById("attDate").value;
+  if(!empId || !date) return;
+  const app=ensureApp();
+  const rec = (app.attendance?.[date]||{})[empId] || null;
+  document.getElementById("attIn").value = rec?.checkIn || "";
+  document.getElementById("attOut").value = rec?.checkOut || "";
+  document.getElementById("excuseType").value = rec?.excuseType || "none";
+  document.getElementById("outOfFactory").value = rec?.outOfFactory ? "1" : "0";
+  document.getElementById("attNote").value = rec?.note || "";
+}
+document.getElementById("attEmp").addEventListener("change", loadAttendanceForm);
+document.getElementById("attDate").addEventListener("change", loadAttendanceForm);
+
+document.getElementById("saveAttendance").addEventListener("click", ()=>{
+  const empId = document.getElementById("attEmp").value;
+  const date = document.getElementById("attDate").value;
+  const checkIn = document.getElementById("attIn").value.trim();
+  const checkOut = document.getElementById("attOut").value.trim();
+  const excuseType = document.getElementById("excuseType").value;
+  const outOfFactory = document.getElementById("outOfFactory").value==="1";
+  const note = document.getElementById("attNote").value.trim();
+
+  if(!empId){ toast("اختر موظف.", "warn"); return; }
+  if(!date){ toast("اختر تاريخ.", "warn"); return; }
+
+  if(checkIn && parseTimeToMinutes(checkIn)==null){ toast("وقت الدخول غير صحيح.", "bad"); return; }
+  if(checkOut && parseTimeToMinutes(checkOut)==null){ toast("وقت الخروج غير صحيح.", "bad"); return; }
+
+  updateApp(app=>{
+    app.attendance[date] = app.attendance[date] || {};
+    app.attendance[date][empId] = {
+      date, employeeId: empId,
+      checkIn: checkIn || "",
+      checkOut: checkOut || "",
+      excuseType,
+      outOfFactory,
+      note
+    };
+  });
+  toast("تم حفظ سجل الدوام.");
+  buildAttendanceTable();
+});
+
+document.getElementById("deleteAttendance").addEventListener("click", ()=>{
+  const empId = document.getElementById("attEmp").value;
+  const date = document.getElementById("attDate").value;
+  if(!empId || !date) return;
+  if(!confirm("حذف سجل هذا الموظف في هذا التاريخ؟")) return;
+  updateApp(app=>{
+    if(app.attendance?.[date]) delete app.attendance[date][empId];
+  });
+  toast("تم حذف السجل.", "warn");
+  loadAttendanceForm();
+  buildAttendanceTable();
+});
+
+function buildAttendanceTable(){
+  const ym = document.getElementById("attMonthFilter").value.trim();
+  const app=ensureApp();
+  const tb=document.getElementById("attTable");
+  tb.innerHTML="";
+  const exMap = {none:"بدون", late_excused:"تأخير بعذر", early_excused:"انصراف مبكر بعذر", absent_excused:"غياب بعذر"};
+  const rows=[];
+  for(const dateKey of Object.keys(app.attendance||{})){
+    if(ym && !dateKey.startsWith(ym+"-")) continue;
+    const day = app.attendance[dateKey] || {};
+    for(const empId of Object.keys(day)){
+      const rec = day[empId];
+      rows.push({date:dateKey, empId, ...rec});
+    }
+  }
+  rows.sort((a,b)=>a.date.localeCompare(b.date));
+  for(const r of rows){
+    const tr=document.createElement("tr");
+    {
+    const settings = app.monthSettings[(r.date||"").slice(0,7)] || app.monthSettings[yyyymm()] || {};
+    const m = computeDayMetrics(settings, r);
+    const otH = (m.overtimeMinutes/60);
+    const lateH = (m.lateMinutes/60);
+    const earlyH = (m.earlyLeaveMinutes/60);
+    const advDay = sumAdvancesOnDate(app, r.date, r.empId);
+    tr.innerHTML = `<td>${r.date}</td>
+      <td>${arDayName(r.date)}</td>
+      <td>${getEmpNameById(r.empId)}</td>
+      <td>${r.checkIn||"—"}</td>
+      <td>${r.checkOut||"—"}</td>
+      <td>${(otH||0).toFixed(2)}</td>
+      <td>${(lateH||0).toFixed(2)}</td>
+      <td>${(earlyH||0).toFixed(2)}</td>
+      <td>${fmtMoney(advDay||0)}</td>
+      <td>${exMap[r.excuseType]||"بدون"}</td>
+      <td>${r.outOfFactory?"نعم":"لا"}</td>
+      <td>${(r.note||"")}</td>`;
+  }
+    tb.appendChild(tr);
+  }
+}
+function exportAttendanceCSV(ym){
+  const app=ensureApp();
+  const rows = [["التاريخ","اليوم","اسم الموظف","الدخول","الخروج","إضافي","تأخير","مبكر","سلف","نوع العذر","مشوار خارج المصنع","ملاحظة"]];
+  const exMap = {none:"none", late_excused:"late_excused", early_excused:"early_excused", absent_excused:"absent_excused"};
+  for(const dateKey of Object.keys(app.attendance||{})){
+    if(!dateKey.startsWith(ym+"-")) continue;
+    const day = app.attendance[dateKey] || {};
+    for(const empId of Object.keys(day)){
+      const rec=day[empId];
+      {
+      const settings = app.monthSettings[dateKey.slice(0,7)] || app.monthSettings[yyyymm()] || {};
+      const m = computeDayMetrics(settings, rec);
+      const advDay = sumAdvancesOnDate(app, dateKey, empId);
+      rows.push([
+        dateKey,
+        arDayName(dateKey),
+        getEmpNameById(empId),
+        rec.checkIn||"",
+        rec.checkOut||"",
+        (m.overtimeMinutes/60).toFixed(2),
+        (m.lateMinutes/60).toFixed(2),
+        (m.earlyLeaveMinutes/60).toFixed(2),
+        advDay||0,
+        rec.excuseType||"none",
+        rec.outOfFactory ? "1":"0",
+        rec.note||""
+      ]);
+    }
+    }
+  }
+  downloadText(`attendance_${ym}.csv`, csvStringify(rows), "text/csv;charset=utf-8");
+}
+document.getElementById("refreshAttTable").addEventListener("click", buildAttendanceTable);
+document.getElementById("exportAttCsv").addEventListener("click", ()=>{
+  const ym=document.getElementById("attMonthFilter").value.trim();
+  if(!/^\d{4}-\d{2}$/.test(ym)){ toast("اكتب الشهر بصيغة YYYY-MM.", "warn"); return; }
+  exportAttendanceCSV(ym);
+});
+buildAttendanceTable();
+
+/* ===== Advances ===== */
+document.getElementById("advMonth").value = yyyymm();
+function loadAdvance(){
+  const ym = document.getElementById("advMonth").value.trim();
+  const empId = document.getElementById("advEmp").value;
+  if(!/^\d{4}-\d{2}$/.test(ym) || !empId) return;
+  const app=ensureApp();
+  const adv = (app.advances?.[ym]||{})[empId] || {};
+  document.getElementById("advAmount").value = adv.amount ?? "";
+  document.getElementById("advNote").value = adv.note ?? "";
+}
+document.getElementById("advMonth").addEventListener("change", loadAdvance);
+document.getElementById("advEmp").addEventListener("change", loadAdvance);
+
+document.getElementById("saveAdvance").addEventListener("click", ()=>{
+  const ym = document.getElementById("advMonth").value.trim();
+  const empId = document.getElementById("advEmp").value;
+  const amount = Number(document.getElementById("advAmount").value||0);
+  const note = document.getElementById("advNote").value.trim();
+  if(!/^\d{4}-\d{2}$/.test(ym)){ toast("اكتب الشهر بصيغة YYYY-MM.", "warn"); return; }
+  if(!empId){ toast("اختر موظف.", "warn"); return; }
+  updateApp(app=>{
+    app.advances[ym] = app.advances[ym] || {};
+    app.advances[ym][empId] = { amount, note };
+  });
+  renderAdvTable();
+  toast("تم حفظ السلفة.");
+});
+document.getElementById("deleteAdvance").addEventListener("click", ()=>{
+  const ym = document.getElementById("advMonth").value.trim();
+  const empId = document.getElementById("advEmp").value;
+  if(!/^\d{4}-\d{2}$/.test(ym) || !empId) return;
+  if(!confirm("حذف السلفة؟")) return;
+  updateApp(app=>{
+    if(app.advances?.[ym]) delete app.advances[ym][empId];
+  });
+  renderAdvTable();
+  loadAdvance();
+  toast("تم حذف السلفة.", "warn");
+});
+function renderAdvTable(){
+  const app=ensureApp();
+  const tb=document.getElementById("advTable");
+  tb.innerHTML="";
+  const rows=[];
+  for(const ym of Object.keys(app.advances||{})){
+    const m = app.advances[ym]||{};
+    for(const empId of Object.keys(m)){
+      rows.push({ym, empId, ...m[empId]});
+    }
+  }
+  rows.sort((a,b)=>(a.ym+b.empId).localeCompare(b.ym+b.empId));
+  for(const r of rows){
+    const tr=document.createElement("tr");
+    tr.innerHTML = `<td>${r.ym}</td><td>${getEmpNameById(r.empId)}</td><td>${fmtMoney(r.amount||0)}</td><td>${r.note||""}</td>`;
+    tb.appendChild(tr);
+  }
+}
+renderAdvTable();
+loadAdvance();
+
+/* ===== Payroll ===== */
+document.getElementById("payMonth").value = yyyymm();
+function buildPayrollTable(){
+  const ym = document.getElementById("payMonth").value.trim();
+  if(!/^\d{4}-\d{2}$/.test(ym)){ toast("اكتب الشهر بصيغة YYYY-MM.", "warn"); return; }
+  const app=ensureApp();
+  const deptById = Object.fromEntries(app.departments.map(d=>[d.id,d.name]));
+  const tb=document.getElementById("payTable");
+  tb.innerHTML="";
+  const rows=[];
+  for(const emp of app.employees){
+    const p = computePayrollForEmployee(app, emp, ym);
+    rows.push({emp, p});
+  }
+  for(const r of rows){
+    const t=r.p.totals;
+    const tr=document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r.emp.name}</td>
+      <td>${deptById[r.emp.departmentId] || "—"}</td>
+      <td>${fmtMoney(t.baseSalary)}</td>
+      <td>${fmtMoney(t.overtimeValue)}</td>
+      <td>${fmtMoney(t.lateDeduction)}</td>
+      <td>${fmtMoney(t.earlyDeduction)}</td>
+      <td>${fmtMoney(t.absenceNoExcuseDeduction)}</td>
+      <td>${fmtMoney(t.advances)}</td>
+      <td><b>${fmtMoney(t.net)}</b></td>
+      <td><button class="btn ghost" data-pdf="${r.emp.id}">طباعة</button></td>
+    `;
+    tb.appendChild(tr);
+  }
+}
+document.getElementById("calcPayroll").addEventListener("click", buildPayrollTable);
+document.getElementById("payTable").addEventListener("click", (e)=>{
+  const id = e.target.getAttribute("data-pdf");
+  if(!id) return;
+  const ym = document.getElementById("payMonth").value.trim();
+  const app=ensureApp();
+  const emp = app.employees.find(x=>x.id===id);
+  if(!emp) return;
+  openReceiptPrintWindow(app, emp, ym);
+});
+
+document.getElementById("exportPayrollCsv").addEventListener("click", ()=>{
+  const ym=document.getElementById("payMonth").value.trim();
+  if(!/^\d{4}-\d{2}$/.test(ym)){ toast("اكتب الشهر بصيغة YYYY-MM.", "warn"); return; }
+  const app=ensureApp();
+  const deptById = Object.fromEntries(app.departments.map(d=>[d.id,d.name]));
+  const rows=[["الاسم","القسم","الراتب الأساسي","قيمة الإضافي","خصم التأخير","خصم المبكر","خصم الغياب","السلف","المستحق"]];
+  for(const emp of app.employees){
+    const p=computePayrollForEmployee(app, emp, ym).totals;
+    rows.push([emp.name, deptById[emp.departmentId]||"", p.baseSalary, p.overtimeValue, p.lateDeduction, p.earlyDeduction, p.absenceNoExcuseDeduction, p.advances, p.net]);
+  }
+  downloadText(`payroll_${ym}.csv`, csvStringify(rows), "text/csv;charset=utf-8");
+});
+
+buildPayrollTable();
+
+/* ===== Report ===== */
+document.getElementById("repMonth").value = yyyymm();
+document.getElementById("buildReport").addEventListener("click", ()=>{
+  const ym=document.getElementById("repMonth").value.trim();
+  if(!/^\d{4}-\d{2}$/.test(ym)){ toast("اكتب الشهر بصيغة YYYY-MM.", "warn"); return; }
+  const app=ensureApp();
+  const tb=document.getElementById("repTable");
+  tb.innerHTML="";
+  const settings = app.monthSettings[ym] || {};
+  const workHours=Number(settings.workHoursInMonth||176);
+  let totalNet=0;
+  const deptById = Object.fromEntries(app.departments.map(d=>[d.id,d.name]));
+  app.employees.forEach((emp,idx)=>{
+    const pr=computePayrollForEmployee(app, emp, ym);
+    const t=pr.totals;
+    totalNet += Number(t.net||0);
+    const hourValue = t.baseSalary / (workHours||1);
+    const workHoursDisplay = (workHours||0).toFixed(0);
+    const tr=document.createElement("tr");
+    tr.innerHTML = `
+      <td>${idx+1}</td>
+      <td>${emp.name}</td>
+      <td>${workHoursDisplay}</td>
+      <td>${fmtMoney(hourValue)}</td>
+      <td>${t.absentExcusedDays}</td>
+      <td>${fmtMoney(0)}</td>
+      <td>${t.absentNoExcuseDays}</td>
+      <td>${fmtMoney(t.absenceNoExcuseDeduction)}</td>
+      <td>${(t.overtimeMinutes/60).toFixed(2)}</td>
+      <td>${fmtMoney(t.overtimeValue)}</td>
+      <td>${(t.lateMinutes/60).toFixed(2)}</td>
+      <td>${fmtMoney(t.lateDeduction)}</td>
+      <td>${(t.earlyLeaveMinutes/60).toFixed(2)}</td>
+      <td>${fmtMoney(t.earlyDeduction)}</td>
+      <td>${fmtMoney(t.advances)}</td>
+      <td><b>${fmtMoney(t.net)}</b></td>
+    `;
+    tb.appendChild(tr);
+  });
+  document.getElementById("repTotal").value = fmtMoney(totalNet);
+  toast("تم إنشاء التقرير.");
+});
+
+/* ===== Import / Export ===== */
+document.getElementById("exportJson").addEventListener("click", ()=>{
+  const app=ensureApp();
+  downloadJSON(`backup_${APP_KEY}_${Date.now()}.json`, app);
+});
+
+document.getElementById("importJson").addEventListener("change", async (e)=>{
+  const file=e.target.files[0]; if(!file) return;
+  try{
+    const txt = await readFileText(file);
+    const obj = JSON.parse(txt);
+    if(!obj || typeof obj!=="object") throw new Error("ملف غير صالح");
+    // minimal schema check
+    if(!obj.company || !obj.employees || !obj.departments) throw new Error("هيكل JSON غير مطابق");
+    localStorage.setItem(APP_KEY, JSON.stringify(obj));
+    toast("تم استيراد النسخة الاحتياطية.");
+    location.reload();
+  }catch(err){
+    toast("فشل الاستيراد: " + err.message, "bad");
+  }finally{ e.target.value=""; }
+});
+
+document.getElementById("exportEmployeesCsv").addEventListener("click", ()=>{
+  const rows=[["الاسم","القسم","الراتب الشهري","ملاحظة"]];
+  rows.push(["","", "", ""]);
+  downloadText("employees.csv", csvStringify(rows), "text/csv;charset=utf-8");
+});
+
+document.getElementById("importEmployeesCsv").addEventListener("change", async (e)=>{
+  const file=e.target.files[0]; if(!file) return;
+  try{
+    const txt=await readFileText(file);
+    const rows=csvParse(txt);
+    if(rows.length<2) throw new Error("CSV فارغ");
+    const header=rows[0].map(h=>h.replace(/\s+/g,"").toLowerCase());
+    // accept arabic or english-ish
+    // expected order: name, dept, salary, note
+    const data=rows.slice(1).filter(r=>r.some(c=>String(c||"").trim().length));
+    updateApp(app=>{
+      for(const r of data){
+        const name=(r[0]||"").trim();
+        const deptName=(r[1]||"").trim();
+        const salary=Number((r[2]||"0").toString().replace(/,/g,""))||0;
+        const note=(r[3]||"").trim();
+        if(!name) continue;
+
+        // ensure dept exists if provided
+        let deptId="";
+        if(deptName){
+          let d=app.departments.find(x=>x.name===deptName);
+          if(!d){
+            d={id:uid("dep"), name:deptName};
+            app.departments.push(d);
+          }
+          deptId=d.id;
+        }
+
+        const existing=app.employees.find(x=>x.name===name);
+        if(existing){
+          existing.departmentId = deptId;
+          existing.monthlySalary = salary;
+          existing.notes = note;
+          if(existing.active===undefined) existing.active=true;
+        }else{
+          app.employees.push({id:uid("emp"), name, departmentId:deptId, monthlySalary:salary, active:true, notes:note});
+        }
+      }
+    });
+    toast("تم استيراد الموظفين بنجاح.");
+    renderDepartments(); renderEmployees();
+  }catch(err){
+    toast("فشل الاستيراد: " + err.message, "bad");
+  }finally{ e.target.value=""; }
+});
+
+document.getElementById("exportMonthAttendanceCsv").addEventListener("click", ()=>{
+  const ym=prompt("اكتب الشهر للتصدير (YYYY-MM):", yyyymm());
+  if(!ym) return;
+  if(!/^\d{4}-\d{2}$/.test(ym)){ toast("صيغة الشهر غير صحيحة.", "bad"); return; }
+  exportAttendanceCSV(ym);
+});
+
+document.getElementById("importAttendanceCsv").addEventListener("change", async (e)=>{
+  const file=e.target.files[0]; if(!file) return;
+  try{
+    const txt=await readFileText(file);
+    const rows=csvParse(txt);
+    if(rows.length<2) throw new Error("CSV فارغ");
+    const data=rows.slice(1).filter(r=>r.some(c=>String(c||"").trim().length));
+    updateApp(app=>{
+      // map employee names to ids
+      const map = Object.fromEntries(app.employees.map(x=>[x.name,x.id]));
+      for(const r of data){
+        const date=(r[0]||"").trim();
+        const empName=(r[1]||"").trim();
+        const checkIn=(r[2]||"").trim();
+        const checkOut=(r[3]||"").trim();
+        const excuseType=(r[4]||"none").trim() || "none";
+        const outOfFactory=((r[5]||"0").trim()==="1");
+        const note=(r[6]||"").trim();
+
+        if(!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) continue;
+        const empId=map[empName];
+        if(!empId) continue; // must exist
+        if(checkIn && parseTimeToMinutes(checkIn)==null) continue;
+        if(checkOut && parseTimeToMinutes(checkOut)==null) continue;
+
+        app.attendance[date] = app.attendance[date] || {};
+        app.attendance[date][empId] = {date, employeeId:empId, checkIn, checkOut, excuseType, outOfFactory, note};
+      }
+    });
+    toast("تم استيراد الدوام.");
+    buildAttendanceTable();
+  }catch(err){
+    toast("فشل الاستيراد: " + err.message, "bad");
+  }finally{ e.target.value=""; }
+});
+
+// catch errors from updateApp throws
+window.addEventListener("error", (e)=>{
+  // prevent noisy default
+});
+</script>
+
+
+<div id="toast" class="toast" role="status" aria-live="polite">
+  <div class="dot"></div>
+  <div class="msg"></div>
+</div>
+</body>
+</html>
