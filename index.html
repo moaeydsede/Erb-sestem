@@ -1,0 +1,2628 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+  <meta name="theme-color" content="#0b1020" />
+  <title>ERP – Accounting, Manufacturing & Cost Centers (Frontend Only)</title>
+  <style>
+    :root{
+      --bg:#0b1020;--panel:#0f1733;--panel2:#0c132b;--card:#121b3d;--text:#e8ecff;--muted:#a8b0d6;
+      --line:rgba(255,255,255,.08);--primary:#6ee7ff;--primary2:#8b5cf6;--danger:#ff5c7c;--ok:#22c55e;
+      --warn:#fbbf24;--shadow:0 18px 60px rgba(0,0,0,.45);
+      --radius:18px;--radius2:24px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, "Segoe UI", "Noto Kufi Arabic", "Noto Sans Arabic", Tahoma, Arial, sans-serif;
+      background: radial-gradient(1200px 600px at 20% 0%, rgba(139,92,246,.25), transparent 60%),
+                  radial-gradient(900px 500px at 90% 20%, rgba(110,231,255,.18), transparent 55%),
+                  linear-gradient(180deg, #070b17 0%, var(--bg) 35%, #070b17 100%);
+      color:var(--text);
+      overflow-x:hidden;
+    }
+    a{color:inherit}
+
+    /* layout */
+    .app{min-height:100%; display:flex; flex-direction:column}
+    .topbar{
+      position:sticky; top:0; z-index:50;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 14px;
+      background:rgba(7,11,23,.75);
+      backdrop-filter: blur(14px);
+      border-bottom:1px solid var(--line);
+    }
+    .brand{display:flex; align-items:center; gap:10px}
+    .logo{
+      width:38px;height:38px;border-radius:14px;
+      background:linear-gradient(135deg, rgba(110,231,255,.95), rgba(139,92,246,.95));
+      box-shadow:0 18px 35px rgba(110,231,255,.18);
+    }
+    .brand h1{font-size:14px; margin:0; line-height:1.2}
+    .brand .sub{font-size:11px; color:var(--muted)}
+
+    .btn{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:14px;
+      cursor:pointer;
+      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+      display:inline-flex; align-items:center; gap:8px;
+      user-select:none;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{border-color:rgba(110,231,255,.25); background:linear-gradient(135deg, rgba(110,231,255,.18), rgba(139,92,246,.16));}
+    .btn.danger{border-color:rgba(255,92,124,.25); background:linear-gradient(135deg, rgba(255,92,124,.18), rgba(139,92,246,.10));}
+    .btn.ghost{background:transparent; box-shadow:none}
+    .btn.small{padding:8px 10px; border-radius:12px; font-size:12px}
+
+    .chip{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:8px 10px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      border-radius:999px;
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    /* menu */
+    .menuWrap{position:relative}
+    .hamburger{width:44px; height:44px; border-radius:14px}
+    .hamburger i{display:block; width:18px; height:2px; background:var(--text); border-radius:2px; position:relative}
+    .hamburger i::before,.hamburger i::after{content:""; position:absolute; left:0; width:18px; height:2px; background:var(--text); border-radius:2px}
+    .hamburger i::before{top:-6px}
+    .hamburger i::after{top:6px}
+
+    .dropdown{
+      position:absolute; inset-inline-start:0; top:54px;
+      width:min(340px, calc(100vw - 24px));
+      background:rgba(15,23,51,.95);
+      border:1px solid var(--line);
+      border-radius:var(--radius2);
+      box-shadow: var(--shadow);
+      padding:10px;
+      display:none;
+    }
+    .dropdown.open{display:block}
+    .menuGroup{padding:6px; border-radius:16px; background:rgba(255,255,255,.03); margin:8px 0}
+    .menuGroup .title{font-size:12px; color:var(--muted); padding:6px 10px}
+    .menuItem{
+      display:flex; align-items:center; justify-content:space-between;
+      padding:10px 10px;
+      border-radius:14px;
+      cursor:pointer;
+      border:1px solid transparent;
+    }
+    .menuItem:hover{background:rgba(255,255,255,.05); border-color:rgba(255,255,255,.06)}
+    .menuItem .left{display:flex; flex-direction:column; gap:2px}
+    .menuItem .name{font-size:13px}
+    .menuItem .desc{font-size:11px; color:var(--muted)}
+
+    /* content */
+    .container{width:min(1120px, 100%); margin:0 auto; padding:16px 14px 60px}
+
+    .grid{display:grid; gap:12px}
+    .grid.cols2{grid-template-columns:1fr}
+    @media(min-width:900px){ .grid.cols2{grid-template-columns:1.25fr .75fr} }
+
+    .card{
+      background: linear-gradient(180deg, rgba(18,27,61,.85), rgba(12,19,43,.85));
+      border:1px solid var(--line);
+      border-radius:var(--radius2);
+      box-shadow: 0 30px 80px rgba(0,0,0,.35);
+      overflow:hidden;
+    }
+    .cardHeader{padding:14px 14px 10px; border-bottom:1px solid var(--line); display:flex; align-items:flex-start; justify-content:space-between; gap:10px}
+    .cardHeader h2{margin:0; font-size:14px}
+    .cardHeader p{margin:4px 0 0; font-size:12px; color:var(--muted)}
+    .cardBody{padding:14px}
+
+    .row{display:flex; gap:10px; flex-wrap:wrap}
+    .row > *{flex:1 1 160px}
+    .field{display:flex; flex-direction:column; gap:6px; margin-bottom:10px}
+    .label{font-size:12px; color:var(--muted)}
+    input,select,textarea{
+      width:100%;
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      padding:11px 12px;
+      outline:none;
+      font-size:13px;
+    }
+    textarea{min-height:92px; resize:vertical}
+    input:focus,select:focus,textarea:focus{border-color:rgba(110,231,255,.35); box-shadow:0 0 0 4px rgba(110,231,255,.08)}
+
+    .kpis{display:grid; grid-template-columns:repeat(2,1fr); gap:10px}
+    @media(min-width:900px){.kpis{grid-template-columns:repeat(4,1fr)}}
+    .kpi{padding:12px; border-radius:18px; border:1px solid var(--line); background:rgba(255,255,255,.03)}
+    .kpi .t{font-size:12px; color:var(--muted)}
+    .kpi .v{font-size:16px; margin-top:6px; font-weight:700}
+
+    /* table */
+    .tableWrap{overflow:auto; border:1px solid var(--line); border-radius:18px}
+    table{width:100%; border-collapse:collapse; min-width:720px; background:rgba(5,8,18,.25)}
+    th,td{padding:10px 10px; border-bottom:1px solid rgba(255,255,255,.06); text-align:right; font-size:12px; vertical-align:top}
+    th{position:sticky; top:0; background:rgba(15,23,51,.95); z-index:1; font-size:12px; color:var(--muted)}
+    tr:hover td{background:rgba(255,255,255,.03)}
+    .actions{display:flex; gap:8px; justify-content:flex-start}
+
+    .sep{height:1px; background:var(--line); margin:12px 0}
+
+    /* login */
+    .loginWrap{min-height:calc(100vh - 70px); display:grid; place-items:center; padding:16px}
+    .loginCard{width:min(560px, 100%); border-radius:28px; padding:16px; border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(18,27,61,.75), rgba(12,19,43,.85)); box-shadow: var(--shadow);
+    }
+    .loginTop{display:flex; gap:12px; align-items:center; padding:10px}
+    .loginTop .logo{width:46px;height:46px;border-radius:18px}
+    .loginTop h2{margin:0; font-size:16px}
+    .loginTop p{margin:3px 0 0; color:var(--muted); font-size:12px}
+    .tabs{display:flex; gap:10px; padding:10px}
+    .tab{flex:1; text-align:center; padding:12px 10px; border-radius:18px; cursor:pointer;
+      border:1px solid var(--line); background:rgba(255,255,255,.03); font-size:13px;
+    }
+    .tab.active{border-color:rgba(110,231,255,.35); background:linear-gradient(135deg, rgba(110,231,255,.14), rgba(139,92,246,.12));}
+    .msg{padding:10px 12px; border-radius:16px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.03); color:var(--muted); font-size:12px}
+    .msg.err{border-color:rgba(255,92,124,.22); color:#ffd1dc; background:rgba(255,92,124,.08)}
+
+    .hidden{display:none !important}
+
+    /* print */
+    @media print{
+      body{background:#fff; color:#000}
+      .topbar,.dropdown,.btn,.chip{display:none !important}
+      .container{width:100%; padding:0}
+      .card{box-shadow:none; border:0}
+      table{min-width:0}
+      th{background:#f2f2f2; color:#000}
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"></div>
+      <div>
+        <h1>ERP – نظام محاسبة وتصنيع ومراكز كلفة</h1>
+        <div class="sub" id="subLine">Frontend Only • LocalStorage</div>
+      </div>
+    </div>
+
+    <div class="row" style="justify-content:flex-end; align-items:center; gap:10px; flex-wrap:nowrap">
+      <div class="chip" id="sessionChip">غير مسجل</div>
+
+      <div class="menuWrap">
+        <button class="btn hamburger" id="hamburgerBtn" title="القائمة" aria-label="القائمة"><i></i></button>
+        <div class="dropdown" id="menu">
+          <div class="menuGroup">
+            <div class="title">القائمة</div>
+            <div class="menuItem" data-route="dashboard">
+              <div class="left"><div class="name">لوحة التحكم</div><div class="desc">ملخص سريع</div></div>
+              <div>›</div>
+            </div>
+          </div>
+
+          <div class="menuGroup">
+            <div class="title">البيانات الأساسية</div>
+            <div class="menuItem" data-route="company"><div class="left"><div class="name">إعدادات الشركة</div><div class="desc">اسم + شعار</div></div><div>›</div></div>
+            <div class="menuItem" data-route="customers"><div class="left"><div class="name">العملاء</div><div class="desc">رصيد افتتاحي + قيد تلقائي</div></div><div>›</div></div>
+            <div class="menuItem" data-route="vendors"><div class="left"><div class="name">الموردين</div><div class="desc">رصيد افتتاحي (دائن)</div></div><div>›</div></div>
+            <div class="menuItem" data-route="items"><div class="left"><div class="name">الأصناف</div><div class="desc">وحدة + تكلفة</div></div><div>›</div></div>
+            <div class="menuItem" data-route="costcenters"><div class="left"><div class="name">مراكز الكلفة</div><div class="desc">CC-00 افتراضي</div></div><div>›</div></div>
+          </div>
+
+          <div class="menuGroup">
+            <div class="title">المحاسبة</div>
+            <div class="menuItem" data-route="coa"><div class="left"><div class="name">دليل الحسابات</div><div class="desc">شجرة + صلاحيات</div></div><div>›</div></div>
+            <div class="menuItem" data-route="journal"><div class="left"><div class="name">القيود اليومية</div><div class="desc">مدين/دائن + مركز كلفة</div></div><div>›</div></div>
+            <div class="menuItem" data-route="periodlock"><div class="left"><div class="name">قفل الفترات</div><div class="desc">منع إدخال قبل تاريخ القفل</div></div><div>›</div></div>
+          </div>
+
+          <div class="menuGroup">
+            <div class="title">المبيعات والمشتريات</div>
+            <div class="menuItem" data-route="sales"><div class="left"><div class="name">فواتير البيع</div><div class="desc">قيد تلقائي</div></div><div>›</div></div>
+            <div class="menuItem" data-route="purchases"><div class="left"><div class="name">فواتير الشراء</div><div class="desc">قيد تلقائي</div></div><div>›</div></div>
+            <div class="menuItem" data-route="receipts"><div class="left"><div class="name">سند قبض</div><div class="desc">عميل → نقدية</div></div><div>›</div></div>
+            <div class="menuItem" data-route="payments"><div class="left"><div class="name">سند صرف</div><div class="desc">مورد → نقدية</div></div><div>›</div></div>
+          </div>
+
+          <div class="menuGroup">
+            <div class="title">التصنيع</div>
+            <div class="menuItem" data-route="bom"><div class="left"><div class="name">BOM – قائمة مكونات</div><div class="desc">تكلفة معيارية</div></div><div>›</div></div>
+            <div class="menuItem" data-route="production"><div class="left"><div class="name">أوامر الإنتاج</div><div class="desc">تحميل تكلفة + مركز كلفة</div></div><div>›</div></div>
+          </div>
+
+          <div class="menuGroup">
+            <div class="title">التقارير</div>
+            <div class="menuItem" data-route="trialbalance"><div class="left"><div class="name">ميزان المراجعة</div><div class="desc">مدين/دائن</div></div><div>›</div></div>
+            <div class="menuItem" data-route="pl"><div class="left"><div class="name">أرباح وخسائر</div><div class="desc">إيرادات/مصروفات</div></div><div>›</div></div>
+            <div class="menuItem" data-route="ledger"><div class="left"><div class="name">دفتر الأستاذ</div><div class="desc">لكل حساب</div></div><div>›</div></div>
+            <div class="menuItem" data-route="statement"><div class="left"><div class="name">كشف حساب</div><div class="desc">عميل / مورد</div></div><div>›</div></div>
+            <div class="menuItem" data-route="custbalances"><div class="left"><div class="name">أرصدة العملاء</div><div class="desc">مدين/دائن/رصيد</div></div><div>›</div></div>
+            <div class="menuItem" data-route="venbalances"><div class="left"><div class="name">أرصدة الموردين</div><div class="desc">مدين/دائن/رصيد</div></div><div>›</div></div>
+          </div>
+
+          <div class="menuGroup">
+            <div class="title">Excel & Backup</div>
+            <div class="menuItem" data-route="excel"><div class="left"><div class="name">Excel</div><div class="desc">تصدير/استيراد</div></div><div>›</div></div>
+            <div class="menuItem" data-route="backup"><div class="left"><div class="name">Backup</div><div class="desc">JSON + استعادة</div></div><div>›</div></div>
+          </div>
+
+          <div class="menuGroup">
+            <div class="title">جلسة</div>
+            <div class="menuItem" id="logoutBtn"><div class="left"><div class="name">خروج</div><div class="desc">إنهاء الجلسة</div></div><div>›</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- LOGIN VIEW -->
+    <section id="view-login" class="loginWrap">
+      <div class="loginCard">
+        <div class="loginTop">
+          <div class="logo" aria-hidden="true"></div>
+          <div>
+            <h2>تسجيل الدخول</h2>
+            <p>Admin / Accountant / Viewer</p>
+          </div>
+        </div>
+
+        <div class="tabs" id="loginTabs">
+          <div class="tab active" data-tab="users">مدراء / محاسب / مشاهدة</div>
+          <div class="tab" data-tab="guest">عرض تجريبي</div>
+        </div>
+
+        <div id="loginUsers">
+          <div class="row">
+            <div class="field">
+              <div class="label">اسم المستخدم</div>
+              <input id="loginUser" autocomplete="username" placeholder="مثال: admin" />
+            </div>
+            <div class="field">
+              <div class="label">كلمة المرور</div>
+              <input id="loginPass" type="password" autocomplete="current-password" placeholder="••••••••" />
+            </div>
+          </div>
+          <div class="row" style="justify-content:flex-end">
+            <button class="btn primary" id="loginBtn">دخول</button>
+          </div>
+        </div>
+
+        <div id="loginGuest" class="hidden">
+          <div class="msg">وضع عرض: يسمح بالاطلاع على الشاشات والتقارير بدون إدخال أو تعديل.</div>
+          <div style="height:10px"></div>
+          <button class="btn primary" id="guestBtn" style="width:100%">الدخول كـ Viewer</button>
+        </div>
+
+        <div style="height:10px"></div>
+        <div id="loginMsg" class="msg hidden"></div>
+      </div>
+    </section>
+
+    <!-- APP VIEWS -->
+    <section id="view-app" class="hidden">
+      <div class="grid cols2">
+        <div class="card">
+          <div class="cardHeader">
+            <div>
+              <h2 id="pageTitle">لوحة التحكم</h2>
+              <p id="pageDesc">—</p>
+            </div>
+            <div class="row" style="gap:8px; justify-content:flex-end">
+              <button class="btn small" id="printBtn">طباعة</button>
+              <button class="btn small" id="pdfBtn">PDF</button>
+              <button class="btn small" id="excelExportBtn">Excel</button>
+            </div>
+          </div>
+          <div class="cardBody" id="pageBody"></div>
+        </div>
+
+        <div class="card">
+          <div class="cardHeader">
+            <div>
+              <h2>مساعد سريع</h2>
+              <p>مؤشرات + أدوات أمان</p>
+            </div>
+          </div>
+          <div class="cardBody" id="sidePanel"></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Libraries (CDN). For offline usage: download libraries locally and replace the script src. -->
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ------------------------------
+   * Utilities
+   * ------------------------------ */
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const uid = () => Math.random().toString(36).slice(2,10) + "-" + Date.now().toString(36);
+  const todayISO = () => new Date().toISOString().slice(0,10);
+
+  const fmtMoney = (n) => {
+    const v = Number(n||0);
+    return v.toLocaleString('ar-EG', {minimumFractionDigits:2, maximumFractionDigits:2});
+  };
+
+  const downloadBlob = (blob, filename) => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 500);
+  };
+
+  const toast = (msg, type="") => {
+    const el = document.createElement('div');
+    el.className = 'msg' + (type==="err"? ' err':'');
+    el.style.position='fixed';
+    el.style.insetInline='14px';
+    el.style.bottom='14px';
+    el.style.zIndex='9999';
+    el.style.boxShadow='var(--shadow)';
+    el.textContent = msg;
+    document.body.appendChild(el);
+    setTimeout(()=>{el.style.opacity='0'; el.style.transition='opacity .25s';}, 2200);
+    setTimeout(()=>el.remove(), 2600);
+  };
+
+  const requireRole = (min) => {
+    const order = {viewer:1, accountant:2, admin:3};
+    const cur = session.role || 'viewer';
+    return order[cur] >= order[min];
+  };
+
+  const assertRole = (min) => {
+    if(!requireRole(min)) throw new Error('لا تملك صلاحية تنفيذ هذا الإجراء');
+  };
+
+  /* ------------------------------
+   * Storage model
+   * ------------------------------ */
+  const STORAGE_KEY = 'ERP_FINAL_V7_FULL_PRO';
+
+  const defaultData = () => ({
+    meta: {
+      version: '7.0',
+      createdAt: new Date().toISOString(),
+      lastUpdatedAt: new Date().toISOString(),
+    },
+    security: {
+      users: [
+        {id:'u-admin', username:'admin', password:'admin123', role:'admin', name:'Admin'},
+        {id:'u-acc', username:'accountant', password:'acc123', role:'accountant', name:'Accountant'},
+        {id:'u-view', username:'viewer', password:'view123', role:'viewer', name:'Viewer'},
+      ],
+      periodLockDate: '', // ISO date: lock <= date
+    },
+    company: { name:'', logoDataUrl:'' },
+    masters: {
+      customers: [],
+      vendors: [],
+      items: [],
+      costCenters: [{code:'CC-00', name:'افتراضي'}],
+    },
+    coa: {
+      accounts: [],
+      defaults: {
+        cash: '1010',
+        ar: '1210',
+        ap: '2010',
+        sales: '4010',
+        cogs: '5010',
+        purchases: '5020',
+        wip: '1310',
+        fg: '1320',
+      }
+    },
+    trx: {
+      journals: [],
+      salesInvoices: [],
+      purchaseInvoices: [],
+      receipts: [],
+      payments: [],
+      boms: [],
+      productionOrders: [],
+    }
+  });
+
+  function seedCOAIfEmpty(db){
+    if(db.coa.accounts && db.coa.accounts.length) return;
+    db.coa.accounts = [
+      {code:'1000', name:'الأصول', type:'asset', parent:''},
+      {code:'1010', name:'الصندوق / البنك', type:'asset', parent:'1000'},
+      {code:'1200', name:'الذمم المدينة', type:'asset', parent:'1000'},
+      {code:'1210', name:'العملاء (AR)', type:'asset', parent:'1200'},
+      {code:'1300', name:'المخزون', type:'asset', parent:'1000'},
+      {code:'1310', name:'تحت التشغيل (WIP)', type:'asset', parent:'1300'},
+      {code:'1320', name:'منتج تام (FG)', type:'asset', parent:'1300'},
+
+      {code:'2000', name:'الخصوم', type:'liability', parent:''},
+      {code:'2010', name:'الموردون (AP)', type:'liability', parent:'2000'},
+
+      {code:'3000', name:'حقوق الملكية', type:'equity', parent:''},
+      {code:'3010', name:'رأس المال', type:'equity', parent:'3000'},
+      {code:'3020', name:'أرباح محتجزة', type:'equity', parent:'3000'},
+
+      {code:'4000', name:'الإيرادات', type:'revenue', parent:''},
+      {code:'4010', name:'مبيعات', type:'revenue', parent:'4000'},
+
+      {code:'5000', name:'المصروفات/تكلفة', type:'expense', parent:''},
+      {code:'5010', name:'تكلفة مبيعات', type:'expense', parent:'5000'},
+      {code:'5020', name:'مشتريات/مواد', type:'expense', parent:'5000'},
+    ];
+  }
+
+  function loadDB(){
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw){
+      const db = defaultData();
+      seedCOAIfEmpty(db);
+      saveDB(db);
+      return db;
+    }
+    try{
+      const db = JSON.parse(raw);
+      // forward compatibility
+      if(!db.meta) db.meta = {version:'7.0', createdAt:new Date().toISOString(), lastUpdatedAt:new Date().toISOString()};
+      if(!db.security) db.security = defaultData().security;
+      if(!db.company) db.company = defaultData().company;
+      if(!db.masters) db.masters = defaultData().masters;
+      if(!db.coa) db.coa = defaultData().coa;
+      if(!db.trx) db.trx = defaultData().trx;
+      seedCOAIfEmpty(db);
+      return db;
+    }catch(e){
+      const db = defaultData();
+      seedCOAIfEmpty(db);
+      saveDB(db);
+      return db;
+    }
+  }
+
+  function saveDB(db){
+    db.meta.lastUpdatedAt = new Date().toISOString();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(db));
+  }
+
+  let db = loadDB();
+
+  /* ------------------------------
+   * Session
+   * ------------------------------ */
+  const session = {
+    userId: '',
+    username: '',
+    role: '',
+    name: '',
+  };
+
+  function saveSession(){
+    localStorage.setItem(STORAGE_KEY + "_SESSION", JSON.stringify(session));
+  }
+  function loadSession(){
+    const raw = localStorage.getItem(STORAGE_KEY + "_SESSION");
+    if(!raw) return false;
+    try{
+      const s = JSON.parse(raw);
+      if(!s || !s.role) return false;
+      Object.assign(session, s);
+      return true;
+    }catch{ return false; }
+  }
+  function clearSession(){
+    localStorage.removeItem(STORAGE_KEY + "_SESSION");
+    session.userId = session.username = session.role = session.name = '';
+  }
+
+  /* ------------------------------
+   * Period lock
+   * ------------------------------ */
+  function isLocked(dateISO){
+    const lock = (db.security.periodLockDate||'').trim();
+    if(!lock) return false;
+    return (dateISO || '') <= lock;
+  }
+
+  function assertNotLocked(dateISO){
+    if(isLocked(dateISO)) throw new Error('الفترة مقفلة: لا يمكن الإدخال أو التعديل قبل/حتى ' + db.security.periodLockDate);
+  }
+
+  /* ------------------------------
+   * Accounting engine
+   * ------------------------------ */
+  function addJournal({date, memo, lines, refType='', refId='', costCenter='CC-00'}){
+    assertRole('accountant');
+    assertNotLocked(date);
+    if(!date) throw new Error('التاريخ مطلوب');
+    if(!Array.isArray(lines) || lines.length < 2) throw new Error('القيد يجب أن يحتوي على سطرين على الأقل');
+
+    let dr=0, cr=0;
+    for(const l of lines){
+      if(!l.account) throw new Error('الحساب مطلوب في كل سطر');
+      const d = Number(l.debit||0);
+      const c = Number(l.credit||0);
+      if(d>0 && c>0) throw new Error('لا يمكن إدخال مدين ودائن في نفس السطر');
+      dr += d; cr += c;
+    }
+    if(Math.abs(dr-cr) > 0.0001) throw new Error('القيد غير متوازن');
+
+    const j = {
+      id: uid(),
+      date, memo: (memo||'').trim(),
+      refType, refId,
+      lines: lines.map(l => ({
+        id: uid(),
+        account: String(l.account),
+        desc: (l.desc||'').trim(),
+        costCenter: l.costCenter || costCenter || 'CC-00',
+        debit: Number(l.debit||0),
+        credit: Number(l.credit||0),
+      })),
+      createdAt: new Date().toISOString(),
+    };
+    db.trx.journals.unshift(j);
+    saveDB(db);
+    return j;
+  }
+
+  function deleteJournal(id){
+    assertRole('admin');
+    const j = db.trx.journals.find(x=>x.id===id);
+    if(!j) return;
+    assertNotLocked(j.date);
+    db.trx.journals = db.trx.journals.filter(x=>x.id!==id);
+    saveDB(db);
+  }
+
+  function getAccount(code){
+    return db.coa.accounts.find(a=>a.code===String(code));
+  }
+
+  function calcAccountBalances(){
+    const bal = new Map();
+    for(const a of db.coa.accounts){ bal.set(a.code, {debit:0, credit:0}); }
+    for(const j of db.trx.journals){
+      for(const l of j.lines){
+        if(!bal.has(l.account)) bal.set(l.account, {debit:0, credit:0});
+        const b = bal.get(l.account);
+        b.debit += Number(l.debit||0);
+        b.credit += Number(l.credit||0);
+      }
+    }
+    return bal;
+  }
+
+  function accountNormalSide(type){
+    // assets/expenses: debit normal. liabilities/equity/revenue: credit normal
+    if(type==='asset' || type==='expense') return 'debit';
+    return 'credit';
+  }
+
+  function calcTrialBalance(){
+    const bal = calcAccountBalances();
+    const rows = [];
+    for(const a of db.coa.accounts){
+      const b = bal.get(a.code) || {debit:0, credit:0};
+      const net = b.debit - b.credit;
+      rows.push({
+        code:a.code,
+        name:a.name,
+        type:a.type,
+        debit:b.debit,
+        credit:b.credit,
+        balance: net,
+      });
+    }
+    const totals = rows.reduce((acc,r)=>{
+      acc.debit += r.debit; acc.credit += r.credit; return acc;
+    }, {debit:0, credit:0});
+    return {rows, totals};
+  }
+
+  function calcPL(){
+    const bal = calcAccountBalances();
+    let rev = 0, exp = 0;
+    for(const a of db.coa.accounts){
+      const b = bal.get(a.code) || {debit:0, credit:0};
+      if(a.type==='revenue') rev += (b.credit - b.debit);
+      if(a.type==='expense') exp += (b.debit - b.credit);
+    }
+    return {revenue: rev, expense: exp, net: (rev-exp)};
+  }
+
+  function ledgerForAccount(code){
+    const rows=[];
+    let run=0;
+    for(const j of [...db.trx.journals].sort((a,b)=>a.date.localeCompare(b.date))){
+      for(const l of j.lines){
+        if(String(l.account) !== String(code)) continue;
+        const d = Number(l.debit||0), c = Number(l.credit||0);
+        run += (d - c);
+        rows.push({date:j.date, memo:j.memo, ref:(j.refType? (j.refType+"/"+j.refId):''), costCenter:l.costCenter, debit:d, credit:c, balance:run});
+      }
+    }
+    return rows;
+  }
+
+  function partyStatement(kind, partyId){
+    // kind: customer|vendor
+    const partyList = kind==='customer' ? db.masters.customers : db.masters.vendors;
+    const party = partyList.find(x=>x.id===partyId);
+    if(!party) return {party:null, rows:[], totals:{debit:0, credit:0, balance:0}};
+
+    const ar = db.coa.defaults.ar;
+    const ap = db.coa.defaults.ap;
+
+    const rows=[];
+    let dr=0, cr=0;
+    // We store refs on auto transactions; for manual journals user can reference party via memo only.
+    const match = (j) => j.refId===partyId && (j.refType===kind || j.refType=== (kind==='customer'?'sale':'purchase') || j.refType=== (kind==='customer'?'receipt':'payment'));
+
+    for(const j of [...db.trx.journals].sort((a,b)=>a.date.localeCompare(b.date))){
+      if(!match(j)) continue;
+      for(const l of j.lines){
+        const d = Number(l.debit||0), c = Number(l.credit||0);
+        // customer statement focuses on AR account movements; vendor statement focuses on AP
+        if(kind==='customer' && String(l.account)!==String(ar)) continue;
+        if(kind==='vendor' && String(l.account)!==String(ap)) continue;
+        dr += d; cr += c;
+        rows.push({date:j.date, memo:j.memo, ref:(j.refType+"/"+j.refId), debit:d, credit:c});
+      }
+    }
+    const balance = dr - cr;
+    return {party, rows, totals:{debit:dr, credit:cr, balance}};
+  }
+
+  function calcCustomerBalances(){
+    const ar = db.coa.defaults.ar;
+    const out=[];
+    for(const c of db.masters.customers){
+      let dr=0, cr=0;
+      for(const j of db.trx.journals){
+        if(j.refId!==c.id) continue;
+        if(!(j.refType==='customer' || j.refType==='sale' || j.refType==='receipt')) continue;
+        for(const l of j.lines){
+          if(String(l.account)!==String(ar)) continue;
+          dr += Number(l.debit||0); cr += Number(l.credit||0);
+        }
+      }
+      out.push({id:c.id, name:c.name, debit:dr, credit:cr, balance:(dr-cr)});
+    }
+    return out;
+  }
+
+  function calcVendorBalances(){
+    const ap = db.coa.defaults.ap;
+    const out=[];
+    for(const v of db.masters.vendors){
+      let dr=0, cr=0;
+      for(const j of db.trx.journals){
+        if(j.refId!==v.id) continue;
+        if(!(j.refType==='vendor' || j.refType==='purchase' || j.refType==='payment')) continue;
+        for(const l of j.lines){
+          if(String(l.account)!==String(ap)) continue;
+          dr += Number(l.debit||0); cr += Number(l.credit||0);
+        }
+      }
+      // vendor logic: balance positive means لصالح المورد (credit - debit). we still return raw dr/cr
+      out.push({id:v.id, name:v.name, debit:dr, credit:cr, balance:(cr-dr)});
+    }
+    return out;
+  }
+
+  /* ------------------------------
+   * Masters: opening balances
+   * ------------------------------ */
+  function applyCustomerOpeningBalance(cust){
+    // Customer opening balance: Debit AR / Credit Equity (capital)
+    const amt = Number(cust.opening||0);
+    if(!amt || amt===0) return;
+    const date = cust.openingDate || todayISO();
+    const ar = db.coa.defaults.ar;
+    const cap = '3010';
+    addJournal({
+      date,
+      memo: `قيد افتتاحي عميل: ${cust.name}`,
+      refType:'customer',
+      refId:cust.id,
+      lines:[
+        {account: ar, desc:'ذمم مدينة (افتتاحي)', debit: amt, credit:0, costCenter:'CC-00'},
+        {account: cap, desc:'رأس المال (افتتاحي)', debit:0, credit: amt, costCenter:'CC-00'},
+      ]
+    });
+  }
+
+  function applyVendorOpeningBalance(v){
+    // Vendor opening balance: Credit AP / Debit Equity (capital)
+    const amt = Number(v.opening||0);
+    if(!amt || amt===0) return;
+    const date = v.openingDate || todayISO();
+    const ap = db.coa.defaults.ap;
+    const cap = '3010';
+    addJournal({
+      date,
+      memo: `قيد افتتاحي مورد: ${v.name}`,
+      refType:'vendor',
+      refId:v.id,
+      lines:[
+        {account: cap, desc:'رأس المال (افتتاحي)', debit: amt, credit:0, costCenter:'CC-00'},
+        {account: ap, desc:'دائنون (افتتاحي)', debit:0, credit: amt, costCenter:'CC-00'},
+      ]
+    });
+  }
+
+  /* ------------------------------
+   * Sales / Purchases / Receipts / Payments
+   * ------------------------------ */
+  function addSalesInvoice(inv){
+    assertRole('accountant');
+    assertNotLocked(inv.date);
+    if(!inv.customerId) throw new Error('اختر العميل');
+    if(!inv.items || !inv.items.length) throw new Error('أضف أصناف');
+
+    const total = inv.items.reduce((s,x)=>s + (Number(x.qty||0)*Number(x.price||0)),0);
+    if(total<=0) throw new Error('الإجمالي غير صحيح');
+
+    inv.id = uid();
+    inv.total = total;
+    db.trx.salesInvoices.unshift(inv);
+
+    // Auto journal: DR AR, CR Sales
+    addJournal({
+      date: inv.date,
+      memo: `فاتورة بيع #${inv.no||''} (${findName('customer',inv.customerId)})`,
+      refType:'sale',
+      refId: inv.customerId,
+      lines:[
+        {account: db.coa.defaults.ar, desc:'ذمم مدينة - عميل', debit: total, credit:0, costCenter: inv.costCenter||'CC-00'},
+        {account: db.coa.defaults.sales, desc:'مبيعات', debit:0, credit: total, costCenter: inv.costCenter||'CC-00'},
+      ]
+    });
+
+    saveDB(db);
+    return inv;
+  }
+
+  function addPurchaseInvoice(inv){
+    assertRole('accountant');
+    assertNotLocked(inv.date);
+    if(!inv.vendorId) throw new Error('اختر المورد');
+    if(!inv.items || !inv.items.length) throw new Error('أضف أصناف');
+
+    const total = inv.items.reduce((s,x)=>s + (Number(x.qty||0)*Number(x.price||0)),0);
+    if(total<=0) throw new Error('الإجمالي غير صحيح');
+
+    inv.id = uid();
+    inv.total = total;
+    db.trx.purchaseInvoices.unshift(inv);
+
+    // Auto journal: DR Purchases/Expense, CR AP
+    addJournal({
+      date: inv.date,
+      memo: `فاتورة شراء #${inv.no||''} (${findName('vendor',inv.vendorId)})`,
+      refType:'purchase',
+      refId: inv.vendorId,
+      lines:[
+        {account: db.coa.defaults.purchases, desc:'مشتريات/مواد', debit: total, credit:0, costCenter: inv.costCenter||'CC-00'},
+        {account: db.coa.defaults.ap, desc:'ذمم دائنة - مورد', debit:0, credit: total, costCenter: inv.costCenter||'CC-00'},
+      ]
+    });
+
+    saveDB(db);
+    return inv;
+  }
+
+  function addReceipt(r){
+    assertRole('accountant');
+    assertNotLocked(r.date);
+    if(!r.customerId) throw new Error('اختر العميل');
+    const amt = Number(r.amount||0);
+    if(amt<=0) throw new Error('المبلغ غير صحيح');
+    r.id = uid();
+    db.trx.receipts.unshift(r);
+
+    // DR Cash, CR AR
+    addJournal({
+      date: r.date,
+      memo: `سند قبض (${findName('customer',r.customerId)})`,
+      refType:'receipt',
+      refId: r.customerId,
+      lines:[
+        {account: db.coa.defaults.cash, desc:'نقدية', debit: amt, credit:0, costCenter: r.costCenter||'CC-00'},
+        {account: db.coa.defaults.ar, desc:'ذمم مدينة', debit:0, credit: amt, costCenter: r.costCenter||'CC-00'},
+      ]
+    });
+
+    saveDB(db);
+    return r;
+  }
+
+  function addPayment(p){
+    assertRole('accountant');
+    assertNotLocked(p.date);
+    if(!p.vendorId) throw new Error('اختر المورد');
+    const amt = Number(p.amount||0);
+    if(amt<=0) throw new Error('المبلغ غير صحيح');
+    p.id = uid();
+    db.trx.payments.unshift(p);
+
+    // DR AP, CR Cash
+    addJournal({
+      date: p.date,
+      memo: `سند صرف (${findName('vendor',p.vendorId)})`,
+      refType:'payment',
+      refId: p.vendorId,
+      lines:[
+        {account: db.coa.defaults.ap, desc:'ذمم دائنة', debit: amt, credit:0, costCenter: p.costCenter||'CC-00'},
+        {account: db.coa.defaults.cash, desc:'نقدية', debit:0, credit: amt, costCenter: p.costCenter||'CC-00'},
+      ]
+    });
+
+    saveDB(db);
+    return p;
+  }
+
+  /* ------------------------------
+   * Manufacturing
+   * ------------------------------ */
+  function bomStdCost(bom){
+    let cost = 0;
+    for(const c of bom.components){
+      const item = db.masters.items.find(i=>i.id===c.itemId);
+      cost += Number(c.qty||0) * Number(item?.cost||0);
+    }
+    return cost;
+  }
+
+  function addBOM(b){
+    assertRole('accountant');
+    if(!b.productId) throw new Error('اختر المنتج');
+    if(!b.components?.length) throw new Error('أضف مكونات');
+    b.id = uid();
+    b.stdCost = bomStdCost(b);
+    db.trx.boms.unshift(b);
+    saveDB(db);
+    return b;
+  }
+
+  function addProductionOrder(o){
+    assertRole('accountant');
+    assertNotLocked(o.date);
+    if(!o.bomId) throw new Error('اختر BOM');
+    const qty = Number(o.qty||0);
+    if(qty<=0) throw new Error('الكمية غير صحيحة');
+
+    const bom = db.trx.boms.find(x=>x.id===o.bomId);
+    if(!bom) throw new Error('BOM غير موجود');
+
+    const stdUnit = bomStdCost(bom);
+    const total = stdUnit * qty;
+
+    o.id = uid();
+    o.stdUnitCost = stdUnit;
+    o.totalCost = total;
+    db.trx.productionOrders.unshift(o);
+
+    // Simplified costing entry: DR WIP, CR Purchases/Materials (or expense)
+    addJournal({
+      date: o.date,
+      memo: `أمر إنتاج (${findItemName(bom.productId)}) كمية ${qty}`,
+      refType:'production',
+      refId: o.id,
+      lines:[
+        {account: db.coa.defaults.wip, desc:'تحميل تكلفة على WIP', debit: total, credit:0, costCenter:o.costCenter||'CC-00'},
+        {account: db.coa.defaults.purchases, desc:'مواد/مشتريات', debit:0, credit: total, costCenter:o.costCenter||'CC-00'},
+      ]
+    });
+
+    // Optionally transfer WIP to FG when completed
+    if(o.status==='completed'){
+      addJournal({
+        date: o.date,
+        memo: `تحويل WIP → FG (${findItemName(bom.productId)})`,
+        refType:'production',
+        refId: o.id,
+        lines:[
+          {account: db.coa.defaults.fg, desc:'منتج تام', debit: total, credit:0, costCenter:o.costCenter||'CC-00'},
+          {account: db.coa.defaults.wip, desc:'تحت التشغيل', debit:0, credit: total, costCenter:o.costCenter||'CC-00'},
+        ]
+      });
+    }
+
+    saveDB(db);
+    return o;
+  }
+
+  /* ------------------------------
+   * Finders
+   * ------------------------------ */
+  function findName(kind, id){
+    if(kind==='customer') return db.masters.customers.find(x=>x.id===id)?.name || '';
+    if(kind==='vendor') return db.masters.vendors.find(x=>x.id===id)?.name || '';
+    return '';
+  }
+  function findItemName(id){
+    return db.masters.items.find(x=>x.id===id)?.name || '';
+  }
+
+  /* ------------------------------
+   * PDF & Excel helpers
+   * ------------------------------ */
+  function hasJsPDF(){
+    return !!(window.jspdf && window.jspdf.jsPDF);
+  }
+  function hasXLSX(){
+    return !!window.XLSX;
+  }
+
+  function pdfFromTable(title, metaLines, columns, rows){
+    if(!hasJsPDF()){
+      toast('مكتبة jsPDF غير محملة. سيتم فتح نافذة للطباعة ثم حفظ PDF من المتصفح.', 'err');
+      window.print();
+      return;
+    }
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({orientation:'p', unit:'pt', format:'a4'});
+
+    const pageW = doc.internal.pageSize.getWidth();
+    let y = 46;
+
+    doc.setFont('helvetica','bold');
+    doc.setFontSize(13);
+    doc.text(title, pageW-40, y, {align:'right'});
+
+    doc.setFont('helvetica','normal');
+    doc.setFontSize(10);
+    y += 18;
+    for(const line of metaLines){
+      doc.text(line, pageW-40, y, {align:'right'});
+      y += 14;
+    }
+    y += 8;
+
+    // very simple table rendering (no autoTable dependency)
+    const colW = (pageW - 80) / columns.length;
+    const rowH = 16;
+
+    const drawRow = (cells, header=false) => {
+      const x0 = 40;
+      let x = x0;
+      doc.setDrawColor(200);
+      doc.setLineWidth(0.3);
+      doc.setFillColor(header? 235: 255);
+      doc.rect(40, y-12, pageW-80, rowH, 'S');
+      for(let i=0;i<cells.length;i++){
+        if(i>0){ doc.line(x, y-12, x, y-12+rowH); }
+        const t = String(cells[i]??'');
+        doc.text(t.length>42? (t.slice(0,42)+'…'):t, x + colW - 6, y, {align:'right'});
+        x += colW;
+      }
+      y += rowH;
+      if(y > doc.internal.pageSize.getHeight() - 60){ doc.addPage(); y = 46; }
+    };
+
+    doc.setFontSize(9);
+    drawRow(columns, true);
+    for(const r of rows){ drawRow(r, false); }
+
+    doc.save((title.replace(/\s+/g,'_') || 'report') + '.pdf');
+  }
+
+  function exportWorkbook(sheets){
+    if(!hasXLSX()){
+      toast('مكتبة XLSX غير محملة. سيتم تصدير CSV بدلاً من ذلك.', 'err');
+      // export first sheet as CSV
+      const [name, data] = Object.entries(sheets)[0];
+      const csv = toCSV(data);
+      downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}), (name||'export')+'.csv');
+      return;
+    }
+    const wb = XLSX.utils.book_new();
+    for(const [sheetName, rows] of Object.entries(sheets)){
+      const ws = XLSX.utils.json_to_sheet(rows);
+      XLSX.utils.book_append_sheet(wb, ws, sheetName.slice(0,31));
+    }
+    const out = XLSX.write(wb, {bookType:'xlsx', type:'array'});
+    downloadBlob(new Blob([out],{type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}), 'ERP_Export.xlsx');
+  }
+
+  function toCSV(rows){
+    if(!rows?.length) return '';
+    const headers = Object.keys(rows[0]);
+    const esc = (v)=>{
+      const s = String(v??'');
+      if(/[",\n]/.test(s)) return '"' + s.replace(/"/g,'""') + '"';
+      return s;
+    };
+    return [headers.join(','), ...rows.map(r=>headers.map(h=>esc(r[h])).join(','))].join('\n');
+  }
+
+  /* ------------------------------
+   * Router
+   * ------------------------------ */
+  const views = {
+    login: $('#view-login'),
+    app: $('#view-app')
+  };
+
+  const ui = {
+    menu: $('#menu'),
+    hamburgerBtn: $('#hamburgerBtn'),
+    sessionChip: $('#sessionChip'),
+    pageTitle: $('#pageTitle'),
+    pageDesc: $('#pageDesc'),
+    pageBody: $('#pageBody'),
+    sidePanel: $('#sidePanel'),
+    printBtn: $('#printBtn'),
+    pdfBtn: $('#pdfBtn'),
+    excelExportBtn: $('#excelExportBtn'),
+  };
+
+  let currentRoute = 'dashboard';
+  let currentReportExport = null; // {pdf: fn, excel: fn}
+
+  function setView(name){
+    views.login.classList.toggle('hidden', name!=='login');
+    views.app.classList.toggle('hidden', name!=='app');
+  }
+
+  function setSessionChip(){
+    if(!session.role){
+      ui.sessionChip.textContent = 'غير مسجل';
+      return;
+    }
+    const roleName = session.role==='admin'?'Admin':(session.role==='accountant'?'Accountant':'Viewer');
+    ui.sessionChip.textContent = `${roleName} • ${session.username}`;
+  }
+
+  function closeMenu(){ ui.menu.classList.remove('open'); }
+
+  ui.hamburgerBtn.addEventListener('click', (e)=>{
+    if(!session.role){ toast('سجّل الدخول أولاً','err'); return; }
+    ui.menu.classList.toggle('open');
+    e.stopPropagation();
+  });
+  document.addEventListener('click', ()=>closeMenu());
+  ui.menu.addEventListener('click', (e)=>e.stopPropagation());
+
+  $('#logoutBtn').addEventListener('click', ()=>{
+    clearSession();
+    setSessionChip();
+    setView('login');
+    closeMenu();
+  });
+
+  $$('#menu .menuItem[data-route]').forEach(it => {
+    it.addEventListener('click', ()=>{
+      const r = it.getAttribute('data-route');
+      navigate(r);
+      closeMenu();
+    });
+  });
+
+  ui.printBtn.addEventListener('click', ()=>window.print());
+  ui.pdfBtn.addEventListener('click', ()=>{
+    if(currentReportExport?.pdf) currentReportExport.pdf();
+    else toast('لا يوجد تقرير PDF في هذه الصفحة. استخدم طباعة عند الحاجة.','err');
+  });
+  ui.excelExportBtn.addEventListener('click', ()=>{
+    if(currentReportExport?.excel) currentReportExport.excel();
+    else toast('لا يوجد تصدير Excel في هذه الصفحة.','err');
+  });
+
+  function navigate(route){
+    if(!session.role){ setView('login'); return; }
+    currentRoute = route;
+    renderRoute();
+  }
+
+  function setHeader(title, desc){
+    ui.pageTitle.textContent = title;
+    ui.pageDesc.textContent = desc||'';
+  }
+
+  function renderSidePanel(){
+    const tb = calcTrialBalance();
+    const pl = calcPL();
+    const locked = db.security.periodLockDate ? `مقفلة حتى: ${db.security.periodLockDate}` : 'غير مقفلة';
+
+    ui.sidePanel.innerHTML = `
+      <div class="kpis">
+        <div class="kpi"><div class="t">العملاء</div><div class="v">${db.masters.customers.length}</div></div>
+        <div class="kpi"><div class="t">الموردين</div><div class="v">${db.masters.vendors.length}</div></div>
+        <div class="kpi"><div class="t">القيود</div><div class="v">${db.trx.journals.length}</div></div>
+        <div class="kpi"><div class="t">صافي الربح</div><div class="v">${fmtMoney(pl.net)}</div></div>
+      </div>
+      <div class="sep"></div>
+      <div class="msg">قفل الفترات: <b>${locked}</b></div>
+      <div style="height:10px"></div>
+      <div class="row">
+        <button class="btn small" id="btnBackupNow">تحميل Backup JSON</button>
+        <button class="btn small danger" id="btnReset">تهيئة (مسح البيانات)</button>
+      </div>
+      <div style="height:10px"></div>
+      <div class="msg">ملاحظة: هذا النظام Frontend Only ويعمل بالمتصفح وLocalStorage. للنقل بين الأجهزة استخدم Backup أو Excel.</div>
+    `;
+
+    $('#btnBackupNow').addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(db,null,2)], {type:'application/json'});
+      downloadBlob(blob, 'ERP_Backup.json');
+    });
+
+    $('#btnReset').addEventListener('click', ()=>{
+      if(!requireRole('admin')) return toast('هذه العملية للـ Admin فقط','err');
+      const ok = confirm('سيتم مسح جميع بيانات النظام من هذا المتصفح. هل أنت متأكد؟');
+      if(!ok) return;
+      db = defaultData();
+      seedCOAIfEmpty(db);
+      saveDB(db);
+      toast('تمت التهيئة بنجاح');
+      renderRoute();
+    });
+  }
+
+  function renderRoute(){
+    renderSidePanel();
+    currentReportExport = null;
+
+    const map = {
+      dashboard: renderDashboard,
+      company: renderCompany,
+      customers: renderCustomers,
+      vendors: renderVendors,
+      items: renderItems,
+      costcenters: renderCostCenters,
+      coa: renderCOA,
+      journal: renderJournal,
+      periodlock: renderPeriodLock,
+      sales: renderSales,
+      purchases: renderPurchases,
+      receipts: renderReceipts,
+      payments: renderPayments,
+      bom: renderBOM,
+      production: renderProduction,
+      trialbalance: renderTrialBalance,
+      pl: renderPL,
+      ledger: renderLedger,
+      statement: renderStatement,
+      custbalances: renderCustomerBalances,
+      venbalances: renderVendorBalances,
+      excel: renderExcel,
+      backup: renderBackup,
+    };
+
+    const fn = map[currentRoute] || renderDashboard;
+    fn();
+  }
+
+  /* ------------------------------
+   * UI builders
+   * ------------------------------ */
+  function table(columns, rows, actionsFn){
+    const thead = `<thead><tr>${columns.map(c=>`<th>${c.label}</th>`).join('')}${actionsFn?'<th>إجراءات</th>':''}</tr></thead>`;
+    const tbody = `<tbody>${rows.map(r=>{
+      return `<tr>${columns.map(c=>`<td>${(c.render? c.render(r): (r[c.key] ?? ''))}</td>`).join('')}${actionsFn?`<td><div class="actions">${actionsFn(r)}</div></td>`:''}</tr>`;
+    }).join('')}</tbody>`;
+    return `<div class="tableWrap"><table>${thead}${tbody}</table></div>`;
+  }
+
+  function selectOptions(list, getValue, getLabel){
+    return list.map(x=>`<option value="${getValue(x)}">${escapeHtml(getLabel(x))}</option>`).join('');
+  }
+
+  function escapeHtml(s){
+    return String(s??'').replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));
+  }
+
+  /* ------------------------------
+   * Pages
+   * ------------------------------ */
+  function renderDashboard(){
+    setHeader('لوحة التحكم', 'ملخص سريع عن البيانات والحركة');
+    const pl = calcPL();
+    const tb = calcTrialBalance();
+
+    ui.pageBody.innerHTML = `
+      <div class="kpis">
+        <div class="kpi"><div class="t">إيرادات</div><div class="v">${fmtMoney(pl.revenue)}</div></div>
+        <div class="kpi"><div class="t">مصروفات</div><div class="v">${fmtMoney(pl.expense)}</div></div>
+        <div class="kpi"><div class="t">مدين الميزان</div><div class="v">${fmtMoney(tb.totals.debit)}</div></div>
+        <div class="kpi"><div class="t">دائن الميزان</div><div class="v">${fmtMoney(tb.totals.credit)}</div></div>
+      </div>
+      <div class="sep"></div>
+      <div class="msg">اختصارات: استخدم القائمة ☰ للوصول لكل الوحدات. الصلاحيات تطبق تلقائيًا حسب الدور.</div>
+    `;
+  }
+
+  function renderCompany(){
+    setHeader('إعدادات الشركة', 'تعديل اسم الشركة والشعار');
+    const canEdit = requireRole('admin');
+
+    ui.pageBody.innerHTML = `
+      <div class="row">
+        <div class="field">
+          <div class="label">اسم الشركة</div>
+          <input id="coName" value="${escapeHtml(db.company.name||'')}" ${canEdit?'':'disabled'} />
+        </div>
+        <div class="field">
+          <div class="label">شعار (اختياري)</div>
+          <input id="coLogo" type="file" accept="image/*" ${canEdit?'':'disabled'} />
+        </div>
+      </div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn primary" id="saveCompany" ${canEdit?'':'disabled'}>حفظ</button>
+      </div>
+      <div style="height:10px"></div>
+      <div class="msg">ملاحظة: الشعار يُحفظ داخل LocalStorage (DataURL) وقد يزيد حجم التخزين حسب الصورة.</div>
+    `;
+
+    $('#saveCompany').addEventListener('click', async ()=>{
+      try{
+        assertRole('admin');
+        db.company.name = ($('#coName').value||'').trim();
+        const file = $('#coLogo').files?.[0];
+        if(file){
+          db.company.logoDataUrl = await fileToDataUrl(file);
+        }
+        saveDB(db);
+        toast('تم حفظ الإعدادات');
+      }catch(e){ toast(e.message,'err'); }
+    });
+  }
+
+  function fileToDataUrl(file){
+    return new Promise((res, rej)=>{
+      const r = new FileReader();
+      r.onload = ()=>res(String(r.result||''));
+      r.onerror = ()=>rej(new Error('فشل قراءة الملف'));
+      r.readAsDataURL(file);
+    });
+  }
+
+  function renderCustomers(){
+    setHeader('العملاء', 'إدارة العملاء + رصيد افتتاحي (قيد تلقائي)');
+    const canEdit = requireRole('accountant');
+
+    const rows = db.masters.customers.map(c=>({
+      ...c,
+      opening: Number(c.opening||0)
+    }));
+
+    ui.pageBody.innerHTML = `
+      <div class="row">
+        <div class="field"><div class="label">اسم العميل</div><input id="cName" placeholder="اسم العميل" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">رصيد افتتاحي (مدين)</div><input id="cOpen" type="number" step="0.01" placeholder="0" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">تاريخ الرصيد</div><input id="cOpenDate" type="date" value="${todayISO()}" ${canEdit?'':'disabled'} /></div>
+      </div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn primary" id="addCustomer" ${canEdit?'':'disabled'}>إضافة</button>
+      </div>
+      <div class="sep"></div>
+      ${table([
+        {key:'id', label:'ID'},
+        {key:'name', label:'الاسم'},
+        {key:'opening', label:'رصيد افتتاحي', render:r=>fmtMoney(r.opening)},
+        {key:'openingDate', label:'تاريخ الرصيد'},
+      ], rows, (r)=>{
+        const delDisabled = !requireRole('admin');
+        return `
+          <button class="btn small danger" data-del="${r.id}" ${delDisabled?'disabled':''}>حذف</button>
+        `;
+      })}
+    `;
+
+    $$('#pageBody [data-del]').forEach(b=>b.addEventListener('click', ()=>{
+      try{
+        assertRole('admin');
+        const id = b.getAttribute('data-del');
+        const ok = confirm('حذف العميل سيحذف بياناته الأساسية فقط (لا يحذف القيود السابقة). هل تريد المتابعة؟');
+        if(!ok) return;
+        db.masters.customers = db.masters.customers.filter(x=>x.id!==id);
+        saveDB(db);
+        renderCustomers();
+      }catch(e){ toast(e.message,'err'); }
+    }));
+
+    $('#addCustomer').addEventListener('click', ()=>{
+      try{
+        assertRole('accountant');
+        const name = ($('#cName').value||'').trim();
+        if(!name) throw new Error('اسم العميل مطلوب');
+        const opening = Number($('#cOpen').value||0);
+        const openingDate = $('#cOpenDate').value || todayISO();
+        const c = {id: uid(), name, opening, openingDate};
+        db.masters.customers.unshift(c);
+        saveDB(db);
+        if(opening>0) applyCustomerOpeningBalance(c);
+        toast('تمت الإضافة');
+        renderCustomers();
+      }catch(e){ toast(e.message,'err'); }
+    });
+  }
+
+  function renderVendors(){
+    setHeader('الموردين', 'إدارة الموردين + رصيد افتتاحي (دائن)');
+    const canEdit = requireRole('accountant');
+
+    const rows = db.masters.vendors.map(v=>({...v, opening:Number(v.opening||0)}));
+
+    ui.pageBody.innerHTML = `
+      <div class="row">
+        <div class="field"><div class="label">اسم المورد</div><input id="vName" placeholder="اسم المورد" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">رصيد افتتاحي (دائن)</div><input id="vOpen" type="number" step="0.01" placeholder="0" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">تاريخ الرصيد</div><input id="vOpenDate" type="date" value="${todayISO()}" ${canEdit?'':'disabled'} /></div>
+      </div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn primary" id="addVendor" ${canEdit?'':'disabled'}>إضافة</button>
+      </div>
+      <div class="sep"></div>
+      ${table([
+        {key:'id', label:'ID'},
+        {key:'name', label:'الاسم'},
+        {key:'opening', label:'رصيد افتتاحي', render:r=>fmtMoney(r.opening)},
+        {key:'openingDate', label:'تاريخ الرصيد'},
+      ], rows, (r)=>{
+        const delDisabled = !requireRole('admin');
+        return `<button class="btn small danger" data-del="${r.id}" ${delDisabled?'disabled':''}>حذف</button>`;
+      })}
+    `;
+
+    $$('#pageBody [data-del]').forEach(b=>b.addEventListener('click', ()=>{
+      try{
+        assertRole('admin');
+        const id = b.getAttribute('data-del');
+        const ok = confirm('حذف المورد سيحذف بياناته الأساسية فقط (لا يحذف القيود السابقة). هل تريد المتابعة؟');
+        if(!ok) return;
+        db.masters.vendors = db.masters.vendors.filter(x=>x.id!==id);
+        saveDB(db);
+        renderVendors();
+      }catch(e){ toast(e.message,'err'); }
+    }));
+
+    $('#addVendor').addEventListener('click', ()=>{
+      try{
+        assertRole('accountant');
+        const name = ($('#vName').value||'').trim();
+        if(!name) throw new Error('اسم المورد مطلوب');
+        const opening = Number($('#vOpen').value||0);
+        const openingDate = $('#vOpenDate').value || todayISO();
+        const v = {id: uid(), name, opening, openingDate};
+        db.masters.vendors.unshift(v);
+        saveDB(db);
+        if(opening>0) applyVendorOpeningBalance(v);
+        toast('تمت الإضافة');
+        renderVendors();
+      }catch(e){ toast(e.message,'err'); }
+    });
+  }
+
+  function renderItems(){
+    setHeader('الأصناف', 'تعريف الأصناف (الاسم / الوحدة / التكلفة)');
+    const canEdit = requireRole('accountant');
+
+    ui.pageBody.innerHTML = `
+      <div class="row">
+        <div class="field"><div class="label">اسم الصنف</div><input id="iName" placeholder="اسم" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">الوحدة</div><input id="iUnit" placeholder="وحدة" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">التكلفة</div><input id="iCost" type="number" step="0.01" placeholder="0" ${canEdit?'':'disabled'} /></div>
+      </div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn primary" id="addItem" ${canEdit?'':'disabled'}>إضافة</button>
+      </div>
+      <div class="sep"></div>
+      ${table([
+        {key:'id', label:'ID'},
+        {key:'name', label:'الصنف'},
+        {key:'unit', label:'الوحدة'},
+        {key:'cost', label:'التكلفة', render:r=>fmtMoney(r.cost)},
+      ], db.masters.items, (r)=>{
+        const delDisabled = !requireRole('admin');
+        return `<button class="btn small danger" data-del="${r.id}" ${delDisabled?'disabled':''}>حذف</button>`;
+      })}
+    `;
+
+    $$('#pageBody [data-del]').forEach(b=>b.addEventListener('click', ()=>{
+      try{
+        assertRole('admin');
+        const id=b.getAttribute('data-del');
+        db.masters.items = db.masters.items.filter(x=>x.id!==id);
+        saveDB(db);
+        renderItems();
+      }catch(e){toast(e.message,'err')}
+    }));
+
+    $('#addItem').addEventListener('click', ()=>{
+      try{
+        assertRole('accountant');
+        const name = ($('#iName').value||'').trim();
+        if(!name) throw new Error('اسم الصنف مطلوب');
+        const unit = ($('#iUnit').value||'').trim();
+        const cost = Number($('#iCost').value||0);
+        db.masters.items.unshift({id:uid(), name, unit, cost});
+        saveDB(db);
+        toast('تمت الإضافة');
+        renderItems();
+      }catch(e){toast(e.message,'err')}
+    });
+  }
+
+  function renderCostCenters(){
+    setHeader('مراكز الكلفة', 'إدارة مراكز الكلفة (CC-00 افتراضي)');
+    const canEdit = requireRole('accountant');
+
+    ui.pageBody.innerHTML = `
+      <div class="row">
+        <div class="field"><div class="label">كود</div><input id="ccCode" placeholder="CC-01" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">اسم</div><input id="ccName" placeholder="اسم المركز" ${canEdit?'':'disabled'} /></div>
+      </div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn primary" id="addCC" ${canEdit?'':'disabled'}>إضافة</button>
+      </div>
+      <div class="sep"></div>
+      ${table([
+        {key:'code', label:'الكود'},
+        {key:'name', label:'الاسم'},
+      ], db.masters.costCenters, (r)=>{
+        const delDisabled = !requireRole('admin') || r.code==='CC-00';
+        return `<button class="btn small danger" data-del="${r.code}" ${delDisabled?'disabled':''}>حذف</button>`;
+      })}
+    `;
+
+    $$('#pageBody [data-del]').forEach(b=>b.addEventListener('click', ()=>{
+      try{
+        assertRole('admin');
+        const code=b.getAttribute('data-del');
+        if(code==='CC-00') throw new Error('لا يمكن حذف CC-00');
+        db.masters.costCenters = db.masters.costCenters.filter(x=>x.code!==code);
+        saveDB(db);
+        renderCostCenters();
+      }catch(e){toast(e.message,'err')}
+    }));
+
+    $('#addCC').addEventListener('click', ()=>{
+      try{
+        assertRole('accountant');
+        const code = ($('#ccCode').value||'').trim();
+        const name = ($('#ccName').value||'').trim();
+        if(!code || !name) throw new Error('الكود والاسم مطلوبان');
+        if(db.masters.costCenters.some(x=>x.code===code)) throw new Error('الكود موجود مسبقاً');
+        db.masters.costCenters.push({code, name});
+        saveDB(db);
+        toast('تمت الإضافة');
+        renderCostCenters();
+      }catch(e){toast(e.message,'err')}
+    });
+  }
+
+  function renderCOA(){
+    setHeader('دليل الحسابات', 'شجرة الحسابات + حماية الصلاحيات');
+    const canEdit = requireRole('admin');
+
+    const rows = [...db.coa.accounts].sort((a,b)=>a.code.localeCompare(b.code));
+
+    ui.pageBody.innerHTML = `
+      <div class="msg">ملاحظة: تعديل دليل الحسابات للـ Admin فقط.</div>
+      <div style="height:10px"></div>
+      <div class="row">
+        <div class="field"><div class="label">الكود</div><input id="aCode" placeholder="مثال: 1010" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">الاسم</div><input id="aName" placeholder="اسم الحساب" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">النوع</div>
+          <select id="aType" ${canEdit?'':'disabled'}>
+            <option value="asset">أصول</option>
+            <option value="liability">خصوم</option>
+            <option value="equity">حقوق ملكية</option>
+            <option value="revenue">إيرادات</option>
+            <option value="expense">مصروفات</option>
+          </select>
+        </div>
+        <div class="field"><div class="label">الأب (اختياري)</div>
+          <select id="aParent" ${canEdit?'':'disabled'}>
+            <option value="">—</option>
+            ${selectOptions(rows, x=>x.code, x=>`${x.code} - ${x.name}`)}
+          </select>
+        </div>
+      </div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn primary" id="addAcc" ${canEdit?'':'disabled'}>إضافة حساب</button>
+      </div>
+      <div class="sep"></div>
+      ${table([
+        {key:'code', label:'الكود'},
+        {key:'name', label:'الاسم'},
+        {key:'type', label:'النوع', render:r=>({asset:'أصول',liability:'خصوم',equity:'حقوق',revenue:'إيراد',expense:'مصروف'}[r.type]||r.type)},
+        {key:'parent', label:'الأب'},
+      ], rows, (r)=>{
+        const delDisabled = !canEdit || ['1000','2000','3000','4000','5000'].includes(r.code);
+        return `<button class="btn small danger" data-del="${r.code}" ${delDisabled?'disabled':''}>حذف</button>`;
+      })}
+
+      <div class="sep"></div>
+      <div class="msg">الحسابات الافتراضية (للقيد التلقائي):
+        <div style="height:8px"></div>
+        <div class="row">
+          ${Object.entries(db.coa.defaults).map(([k,v])=>`<div class="field"><div class="label">${k}</div><input data-def="${k}" value="${escapeHtml(v)}" ${canEdit?'':'disabled'} /></div>`).join('')}
+        </div>
+        <div class="row" style="justify-content:flex-end">
+          <button class="btn primary" id="saveDefaults" ${canEdit?'':'disabled'}>حفظ الافتراضي</button>
+        </div>
+      </div>
+    `;
+
+    $$('#pageBody [data-del]').forEach(b=>b.addEventListener('click', ()=>{
+      try{
+        assertRole('admin');
+        const code=b.getAttribute('data-del');
+        const used = db.trx.journals.some(j=>j.lines.some(l=>String(l.account)===String(code)));
+        if(used) throw new Error('لا يمكن حذف حساب مستخدم في قيود');
+        db.coa.accounts = db.coa.accounts.filter(x=>x.code!==code);
+        saveDB(db);
+        renderCOA();
+      }catch(e){toast(e.message,'err')}
+    }));
+
+    $('#addAcc').addEventListener('click', ()=>{
+      try{
+        assertRole('admin');
+        const code = ($('#aCode').value||'').trim();
+        const name = ($('#aName').value||'').trim();
+        const type = $('#aType').value;
+        const parent = $('#aParent').value;
+        if(!code || !name) throw new Error('الكود والاسم مطلوبان');
+        if(db.coa.accounts.some(x=>x.code===code)) throw new Error('الكود موجود');
+        db.coa.accounts.push({code, name, type, parent});
+        saveDB(db);
+        toast('تمت الإضافة');
+        renderCOA();
+      }catch(e){toast(e.message,'err')}
+    });
+
+    $('#saveDefaults').addEventListener('click', ()=>{
+      try{
+        assertRole('admin');
+        $$('#pageBody [data-def]').forEach(inp=>{
+          const k = inp.getAttribute('data-def');
+          const v = (inp.value||'').trim();
+          if(v && !getAccount(v)) throw new Error(`الحساب الافتراضي غير موجود: ${k} = ${v}`);
+          db.coa.defaults[k] = v;
+        });
+        saveDB(db);
+        toast('تم حفظ الافتراضي');
+      }catch(e){toast(e.message,'err')}
+    });
+  }
+
+  function renderJournal(){
+    setHeader('القيود اليومية', 'إضافة قيد متوازن + منع الإدخال في الفترات المقفلة');
+    const canEdit = requireRole('accountant');
+
+    const accs = [...db.coa.accounts].sort((a,b)=>a.code.localeCompare(b.code));
+    const ccs = db.masters.costCenters;
+
+    ui.pageBody.innerHTML = `
+      <div class="msg">تحقق توازن القيد تلقائيًا. الحذف للـ Admin فقط.</div>
+      <div style="height:10px"></div>
+
+      <div class="row">
+        <div class="field"><div class="label">التاريخ</div><input id="jDate" type="date" value="${todayISO()}" ${canEdit?'':'disabled'} /></div>
+        <div class="field" style="flex:2 1 260px"><div class="label">البيان</div><input id="jMemo" placeholder="وصف القيد" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">مركز كلفة افتراضي</div>
+          <select id="jCC" ${canEdit?'':'disabled'}>${selectOptions(ccs, x=>x.code, x=>`${x.code} - ${x.name}`)}</select>
+        </div>
+      </div>
+
+      <div class="card" style="background:rgba(255,255,255,.02); border-radius:22px">
+        <div class="cardHeader"><div><h2 style="margin:0">سطور القيد</h2><p style="margin:3px 0 0">أضف سطرين أو أكثر</p></div>
+          <button class="btn small" id="addLineBtn" ${canEdit?'':'disabled'}>إضافة سطر</button>
+        </div>
+        <div class="cardBody" id="linesWrap"></div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn primary" id="postJournal" ${canEdit?'':'disabled'}>ترحيل القيد</button>
+      </div>
+
+      <div class="sep"></div>
+
+      ${table([
+        {key:'date', label:'التاريخ'},
+        {key:'memo', label:'البيان'},
+        {key:'refType', label:'المرجع'},
+        {key:'id', label:'ID'},
+      ], db.trx.journals, (r)=>{
+        const delDisabled = !requireRole('admin');
+        return `<button class="btn small danger" data-del="${r.id}" ${delDisabled?'disabled':''}>حذف</button>`;
+      })}
+    `;
+
+    const linesWrap = $('#linesWrap');
+    const newLineRow = () => {
+      const div = document.createElement('div');
+      div.style.display='grid';
+      div.style.gridTemplateColumns='1.5fr 1fr 1fr 1fr';
+      div.style.gap='10px';
+      div.style.marginBottom='10px';
+      div.innerHTML = `
+        <div class="field"><div class="label">الحساب</div>
+          <select class="lAcc" ${canEdit?'':'disabled'}>
+            <option value="">—</option>
+            ${selectOptions(accs, x=>x.code, x=>`${x.code} - ${x.name}`)}
+          </select>
+        </div>
+        <div class="field"><div class="label">مركز كلفة</div>
+          <select class="lCC" ${canEdit?'':'disabled'}>
+            ${selectOptions(ccs, x=>x.code, x=>`${x.code} - ${x.name}`)}
+          </select>
+        </div>
+        <div class="field"><div class="label">مدين</div><input class="lDr" type="number" step="0.01" placeholder="0" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">دائن</div><input class="lCr" type="number" step="0.01" placeholder="0" ${canEdit?'':'disabled'} /></div>
+      `;
+      linesWrap.appendChild(div);
+    };
+
+    newLineRow();
+    newLineRow();
+
+    $('#addLineBtn').addEventListener('click', ()=>newLineRow());
+
+    $('#postJournal').addEventListener('click', ()=>{
+      try{
+        assertRole('accountant');
+        const date = $('#jDate').value;
+        const memo = $('#jMemo').value;
+        const defCC = $('#jCC').value;
+        const lines = $$('#linesWrap > div').map(row => ({
+          account: $('.lAcc', row).value,
+          costCenter: $('.lCC', row).value || defCC,
+          debit: Number($('.lDr', row).value||0),
+          credit: Number($('.lCr', row).value||0),
+        })).filter(l => l.account && (l.debit>0 || l.credit>0));
+
+        addJournal({date, memo, costCenter:defCC, lines});
+        toast('تم ترحيل القيد');
+        renderJournal();
+      }catch(e){ toast(e.message,'err'); }
+    });
+
+    $$('#pageBody [data-del]').forEach(b=>b.addEventListener('click', ()=>{
+      try{
+        assertRole('admin');
+        const id=b.getAttribute('data-del');
+        deleteJournal(id);
+        toast('تم الحذف');
+        renderJournal();
+      }catch(e){toast(e.message,'err')}
+    }));
+  }
+
+  function renderPeriodLock(){
+    setHeader('قفل الفترات المحاسبية', 'منع إضافة/تعديل/حذف قبل/حتى تاريخ القفل');
+    const canEdit = requireRole('admin');
+
+    ui.pageBody.innerHTML = `
+      <div class="msg">القفل يطبق على القيود والفواتير والسندات وأوامر الإنتاج.</div>
+      <div style="height:10px"></div>
+      <div class="row">
+        <div class="field"><div class="label">تاريخ القفل</div><input id="lockDate" type="date" value="${escapeHtml(db.security.periodLockDate||'')}" ${canEdit?'':'disabled'} /></div>
+      </div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn primary" id="saveLock" ${canEdit?'':'disabled'}>حفظ</button>
+        <button class="btn" id="clearLock" ${canEdit?'':'disabled'}>إلغاء القفل</button>
+      </div>
+    `;
+
+    $('#saveLock').addEventListener('click', ()=>{
+      try{
+        assertRole('admin');
+        db.security.periodLockDate = ($('#lockDate').value||'').trim();
+        saveDB(db);
+        toast('تم حفظ القفل');
+        renderPeriodLock();
+      }catch(e){toast(e.message,'err')}
+    });
+
+    $('#clearLock').addEventListener('click', ()=>{
+      try{
+        assertRole('admin');
+        db.security.periodLockDate = '';
+        saveDB(db);
+        toast('تم إلغاء القفل');
+        renderPeriodLock();
+      }catch(e){toast(e.message,'err')}
+    });
+  }
+
+  function renderSales(){
+    setHeader('فواتير البيع', 'عميل + أصناف + مركز كلفة + قيد تلقائي');
+    const canEdit = requireRole('accountant');
+    const customers = db.masters.customers;
+    const items = db.masters.items;
+    const ccs = db.masters.costCenters;
+
+    ui.pageBody.innerHTML = `
+      <div class="row">
+        <div class="field"><div class="label">رقم الفاتورة</div><input id="sNo" placeholder="اختياري" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">التاريخ</div><input id="sDate" type="date" value="${todayISO()}" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">العميل</div>
+          <select id="sCust" ${canEdit?'':'disabled'}>
+            <option value="">—</option>
+            ${selectOptions(customers, x=>x.id, x=>x.name)}
+          </select>
+        </div>
+        <div class="field"><div class="label">مركز كلفة</div>
+          <select id="sCC" ${canEdit?'':'disabled'}>${selectOptions(ccs, x=>x.code, x=>`${x.code} - ${x.name}`)}</select>
+        </div>
+      </div>
+
+      <div class="card" style="background:rgba(255,255,255,.02); border-radius:22px">
+        <div class="cardHeader"><div><h2 style="margin:0">بنود الفاتورة</h2><p style="margin:3px 0 0">الكمية × السعر</p></div>
+          <button class="btn small" id="addSLine" ${canEdit?'':'disabled'}>إضافة بند</button>
+        </div>
+        <div class="cardBody" id="sLines"></div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn primary" id="postSale" ${canEdit?'':'disabled'}>حفظ + ترحيل</button>
+      </div>
+
+      <div class="sep"></div>
+      ${table([
+        {key:'date', label:'التاريخ'},
+        {key:'no', label:'#'},
+        {key:'customerId', label:'العميل', render:r=>escapeHtml(findName('customer',r.customerId))},
+        {key:'costCenter', label:'مركز كلفة'},
+        {key:'total', label:'الإجمالي', render:r=>fmtMoney(r.total)},
+      ], db.trx.salesInvoices)}
+    `;
+
+    const wrap = $('#sLines');
+    const addLine = () => {
+      const div = document.createElement('div');
+      div.style.display='grid';
+      div.style.gridTemplateColumns='1.6fr 1fr 1fr';
+      div.style.gap='10px';
+      div.style.marginBottom='10px';
+      div.innerHTML = `
+        <div class="field"><div class="label">الصنف</div>
+          <select class="it" ${canEdit?'':'disabled'}>
+            <option value="">—</option>
+            ${selectOptions(items, x=>x.id, x=>x.name)}
+          </select>
+        </div>
+        <div class="field"><div class="label">الكمية</div><input class="qty" type="number" step="0.01" placeholder="1" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">السعر</div><input class="price" type="number" step="0.01" placeholder="0" ${canEdit?'':'disabled'} /></div>
+      `;
+      wrap.appendChild(div);
+    };
+    addLine();
+
+    $('#addSLine').addEventListener('click', addLine);
+
+    $('#postSale').addEventListener('click', ()=>{
+      try{
+        assertRole('accountant');
+        const inv = {
+          no: ($('#sNo').value||'').trim(),
+          date: $('#sDate').value,
+          customerId: $('#sCust').value,
+          costCenter: $('#sCC').value,
+          items: $$('#sLines > div').map(r=>({
+            itemId: $('.it',r).value,
+            qty: Number($('.qty',r).value||0),
+            price: Number($('.price',r).value||0),
+          })).filter(x=>x.itemId && x.qty>0)
+        };
+        addSalesInvoice(inv);
+        toast('تم حفظ وترحيل الفاتورة');
+        renderSales();
+      }catch(e){ toast(e.message,'err'); }
+    });
+  }
+
+  function renderPurchases(){
+    setHeader('فواتير الشراء', 'مورد + أصناف + مركز كلفة + قيد تلقائي');
+    const canEdit = requireRole('accountant');
+    const vendors = db.masters.vendors;
+    const items = db.masters.items;
+    const ccs = db.masters.costCenters;
+
+    ui.pageBody.innerHTML = `
+      <div class="row">
+        <div class="field"><div class="label">رقم الفاتورة</div><input id="pNo" placeholder="اختياري" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">التاريخ</div><input id="pDate" type="date" value="${todayISO()}" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">المورد</div>
+          <select id="pVen" ${canEdit?'':'disabled'}>
+            <option value="">—</option>
+            ${selectOptions(vendors, x=>x.id, x=>x.name)}
+          </select>
+        </div>
+        <div class="field"><div class="label">مركز كلفة</div>
+          <select id="pCC" ${canEdit?'':'disabled'}>${selectOptions(ccs, x=>x.code, x=>`${x.code} - ${x.name}`)}</select>
+        </div>
+      </div>
+
+      <div class="card" style="background:rgba(255,255,255,.02); border-radius:22px">
+        <div class="cardHeader"><div><h2 style="margin:0">بنود الفاتورة</h2><p style="margin:3px 0 0">الكمية × السعر</p></div>
+          <button class="btn small" id="addPLine" ${canEdit?'':'disabled'}>إضافة بند</button>
+        </div>
+        <div class="cardBody" id="pLines"></div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn primary" id="postPurchase" ${canEdit?'':'disabled'}>حفظ + ترحيل</button>
+      </div>
+
+      <div class="sep"></div>
+      ${table([
+        {key:'date', label:'التاريخ'},
+        {key:'no', label:'#'},
+        {key:'vendorId', label:'المورد', render:r=>escapeHtml(findName('vendor',r.vendorId))},
+        {key:'costCenter', label:'مركز كلفة'},
+        {key:'total', label:'الإجمالي', render:r=>fmtMoney(r.total)},
+      ], db.trx.purchaseInvoices)}
+    `;
+
+    const wrap = $('#pLines');
+    const addLine = () => {
+      const div = document.createElement('div');
+      div.style.display='grid';
+      div.style.gridTemplateColumns='1.6fr 1fr 1fr';
+      div.style.gap='10px';
+      div.style.marginBottom='10px';
+      div.innerHTML = `
+        <div class="field"><div class="label">الصنف</div>
+          <select class="it" ${canEdit?'':'disabled'}>
+            <option value="">—</option>
+            ${selectOptions(items, x=>x.id, x=>x.name)}
+          </select>
+        </div>
+        <div class="field"><div class="label">الكمية</div><input class="qty" type="number" step="0.01" placeholder="1" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">السعر</div><input class="price" type="number" step="0.01" placeholder="0" ${canEdit?'':'disabled'} /></div>
+      `;
+      wrap.appendChild(div);
+    };
+    addLine();
+
+    $('#addPLine').addEventListener('click', addLine);
+
+    $('#postPurchase').addEventListener('click', ()=>{
+      try{
+        assertRole('accountant');
+        const inv = {
+          no: ($('#pNo').value||'').trim(),
+          date: $('#pDate').value,
+          vendorId: $('#pVen').value,
+          costCenter: $('#pCC').value,
+          items: $$('#pLines > div').map(r=>({
+            itemId: $('.it',r).value,
+            qty: Number($('.qty',r).value||0),
+            price: Number($('.price',r).value||0),
+          })).filter(x=>x.itemId && x.qty>0)
+        };
+        addPurchaseInvoice(inv);
+        toast('تم حفظ وترحيل الفاتورة');
+        renderPurchases();
+      }catch(e){ toast(e.message,'err'); }
+    });
+  }
+
+  function renderReceipts(){
+    setHeader('سند قبض', 'تحصيل من عميل (قيد تلقائي)');
+    const canEdit = requireRole('accountant');
+    const customers = db.masters.customers;
+    const ccs = db.masters.costCenters;
+
+    ui.pageBody.innerHTML = `
+      <div class="row">
+        <div class="field"><div class="label">التاريخ</div><input id="rDate" type="date" value="${todayISO()}" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">العميل</div>
+          <select id="rCust" ${canEdit?'':'disabled'}>
+            <option value="">—</option>
+            ${selectOptions(customers, x=>x.id, x=>x.name)}
+          </select>
+        </div>
+        <div class="field"><div class="label">المبلغ</div><input id="rAmt" type="number" step="0.01" placeholder="0" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">مركز كلفة</div>
+          <select id="rCC" ${canEdit?'':'disabled'}>${selectOptions(ccs, x=>x.code, x=>`${x.code} - ${x.name}`)}</select>
+        </div>
+      </div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn primary" id="postReceipt" ${canEdit?'':'disabled'}>حفظ + ترحيل</button>
+      </div>
+      <div class="sep"></div>
+      ${table([
+        {key:'date', label:'التاريخ'},
+        {key:'customerId', label:'العميل', render:r=>escapeHtml(findName('customer',r.customerId))},
+        {key:'amount', label:'المبلغ', render:r=>fmtMoney(r.amount)},
+        {key:'costCenter', label:'مركز كلفة'},
+      ], db.trx.receipts)}
+    `;
+
+    $('#postReceipt').addEventListener('click', ()=>{
+      try{
+        assertRole('accountant');
+        addReceipt({date:$('#rDate').value, customerId:$('#rCust').value, amount:Number($('#rAmt').value||0), costCenter:$('#rCC').value});
+        toast('تم الترحيل');
+        renderReceipts();
+      }catch(e){ toast(e.message,'err'); }
+    });
+  }
+
+  function renderPayments(){
+    setHeader('سند صرف', 'دفع لمورد (قيد تلقائي)');
+    const canEdit = requireRole('accountant');
+    const vendors = db.masters.vendors;
+    const ccs = db.masters.costCenters;
+
+    ui.pageBody.innerHTML = `
+      <div class="row">
+        <div class="field"><div class="label">التاريخ</div><input id="payDate" type="date" value="${todayISO()}" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">المورد</div>
+          <select id="payVen" ${canEdit?'':'disabled'}>
+            <option value="">—</option>
+            ${selectOptions(vendors, x=>x.id, x=>x.name)}
+          </select>
+        </div>
+        <div class="field"><div class="label">المبلغ</div><input id="payAmt" type="number" step="0.01" placeholder="0" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">مركز كلفة</div>
+          <select id="payCC" ${canEdit?'':'disabled'}>${selectOptions(ccs, x=>x.code, x=>`${x.code} - ${x.name}`)}</select>
+        </div>
+      </div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn primary" id="postPayment" ${canEdit?'':'disabled'}>حفظ + ترحيل</button>
+      </div>
+      <div class="sep"></div>
+      ${table([
+        {key:'date', label:'التاريخ'},
+        {key:'vendorId', label:'المورد', render:r=>escapeHtml(findName('vendor',r.vendorId))},
+        {key:'amount', label:'المبلغ', render:r=>fmtMoney(r.amount)},
+        {key:'costCenter', label:'مركز كلفة'},
+      ], db.trx.payments)}
+    `;
+
+    $('#postPayment').addEventListener('click', ()=>{
+      try{
+        assertRole('accountant');
+        addPayment({date:$('#payDate').value, vendorId:$('#payVen').value, amount:Number($('#payAmt').value||0), costCenter:$('#payCC').value});
+        toast('تم الترحيل');
+        renderPayments();
+      }catch(e){ toast(e.message,'err'); }
+    });
+  }
+
+  function renderBOM(){
+    setHeader('BOM – قائمة مكونات', 'منتج + مكونات + تكلفة معيارية');
+    const canEdit = requireRole('accountant');
+    const items = db.masters.items;
+
+    ui.pageBody.innerHTML = `
+      <div class="row">
+        <div class="field"><div class="label">المنتج (Finished)</div>
+          <select id="bomProd" ${canEdit?'':'disabled'}>
+            <option value="">—</option>
+            ${selectOptions(items, x=>x.id, x=>x.name)}
+          </select>
+        </div>
+      </div>
+
+      <div class="card" style="background:rgba(255,255,255,.02); border-radius:22px">
+        <div class="cardHeader"><div><h2 style="margin:0">المكونات</h2><p style="margin:3px 0 0">الكمية × تكلفة الصنف</p></div>
+          <button class="btn small" id="addBomLine" ${canEdit?'':'disabled'}>إضافة مكون</button>
+        </div>
+        <div class="cardBody" id="bomLines"></div>
+      </div>
+
+      <div style="height:10px"></div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn primary" id="saveBOM" ${canEdit?'':'disabled'}>حفظ BOM</button>
+      </div>
+
+      <div class="sep"></div>
+      ${table([
+        {key:'id', label:'ID'},
+        {key:'productId', label:'المنتج', render:r=>escapeHtml(findItemName(r.productId))},
+        {key:'stdCost', label:'تكلفة معيارية/وحدة', render:r=>fmtMoney(r.stdCost)},
+      ], db.trx.boms)}
+    `;
+
+    const wrap = $('#bomLines');
+    const addLine = () => {
+      const div = document.createElement('div');
+      div.style.display='grid';
+      div.style.gridTemplateColumns='1.6fr 1fr';
+      div.style.gap='10px';
+      div.style.marginBottom='10px';
+      div.innerHTML = `
+        <div class="field"><div class="label">الصنف</div>
+          <select class="it" ${canEdit?'':'disabled'}>
+            <option value="">—</option>
+            ${selectOptions(items, x=>x.id, x=>x.name)}
+          </select>
+        </div>
+        <div class="field"><div class="label">الكمية</div><input class="qty" type="number" step="0.01" placeholder="1" ${canEdit?'':'disabled'} /></div>
+      `;
+      wrap.appendChild(div);
+    };
+    addLine();
+
+    $('#addBomLine').addEventListener('click', addLine);
+
+    $('#saveBOM').addEventListener('click', ()=>{
+      try{
+        assertRole('accountant');
+        const b = {
+          productId: $('#bomProd').value,
+          components: $$('#bomLines > div').map(r=>({
+            itemId: $('.it',r).value,
+            qty: Number($('.qty',r).value||0)
+          })).filter(x=>x.itemId && x.qty>0)
+        };
+        addBOM(b);
+        toast('تم حفظ BOM');
+        renderBOM();
+      }catch(e){ toast(e.message,'err'); }
+    });
+  }
+
+  function renderProduction(){
+    setHeader('أوامر الإنتاج', 'كمية + مركز كلفة + تحميل تكلفة (قيد تلقائي)');
+    const canEdit = requireRole('accountant');
+    const boms = db.trx.boms;
+    const ccs = db.masters.costCenters;
+
+    ui.pageBody.innerHTML = `
+      <div class="row">
+        <div class="field"><div class="label">التاريخ</div><input id="prDate" type="date" value="${todayISO()}" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">BOM</div>
+          <select id="prBom" ${canEdit?'':'disabled'}>
+            <option value="">—</option>
+            ${selectOptions(boms, x=>x.id, x=>`${findItemName(x.productId)} (تكلفة ${fmtMoney(x.stdCost)})`)}
+          </select>
+        </div>
+        <div class="field"><div class="label">الكمية</div><input id="prQty" type="number" step="0.01" placeholder="1" ${canEdit?'':'disabled'} /></div>
+        <div class="field"><div class="label">مركز كلفة</div>
+          <select id="prCC" ${canEdit?'':'disabled'}>${selectOptions(ccs, x=>x.code, x=>`${x.code} - ${x.name}`)}</select>
+        </div>
+        <div class="field"><div class="label">الحالة</div>
+          <select id="prStatus" ${canEdit?'':'disabled'}>
+            <option value="open">مفتوح</option>
+            <option value="completed">مكتمل</option>
+          </select>
+        </div>
+      </div>
+      <div class="row" style="justify-content:flex-end">
+        <button class="btn primary" id="postProd" ${canEdit?'':'disabled'}>حفظ + تحميل تكلفة</button>
+      </div>
+      <div class="sep"></div>
+      ${table([
+        {key:'date', label:'التاريخ'},
+        {key:'bomId', label:'المنتج', render:r=>{
+          const bom = db.trx.boms.find(x=>x.id===r.bomId);
+          return escapeHtml(findItemName(bom?.productId));
+        }},
+        {key:'qty', label:'الكمية'},
+        {key:'status', label:'الحالة', render:r=>r.status==='completed'?'مكتمل':'مفتوح'},
+        {key:'totalCost', label:'إجمالي التكلفة', render:r=>fmtMoney(r.totalCost)},
+        {key:'costCenter', label:'مركز كلفة'},
+      ], db.trx.productionOrders)}
+    `;
+
+    $('#postProd').addEventListener('click', ()=>{
+      try{
+        assertRole('accountant');
+        addProductionOrder({
+          date: $('#prDate').value,
+          bomId: $('#prBom').value,
+          qty: Number($('#prQty').value||0),
+          costCenter: $('#prCC').value,
+          status: $('#prStatus').value,
+        });
+        toast('تم تسجيل أمر الإنتاج');
+        renderProduction();
+      }catch(e){ toast(e.message,'err'); }
+    });
+  }
+
+  function renderTrialBalance(){
+    setHeader('ميزان المراجعة', 'مدين / دائن مع إمكانية PDF و Excel');
+    const {rows, totals} = calcTrialBalance();
+
+    ui.pageBody.innerHTML = `
+      <div class="msg">إجمالي مدين: <b>${fmtMoney(totals.debit)}</b> • إجمالي دائن: <b>${fmtMoney(totals.credit)}</b></div>
+      <div class="sep"></div>
+      ${table([
+        {key:'code', label:'الكود'},
+        {key:'name', label:'الحساب'},
+        {key:'debit', label:'مدين', render:r=>fmtMoney(r.debit)},
+        {key:'credit', label:'دائن', render:r=>fmtMoney(r.credit)},
+      ], rows)}
+    `;
+
+    currentReportExport = {
+      pdf: () => pdfFromTable('ميزان المراجعة', [companyLine(), `التاريخ: ${todayISO()}`], ['الكود','الحساب','مدين','دائن'], rows.map(r=>[r.code,r.name,fmtMoney(r.debit),fmtMoney(r.credit)])),
+      excel: () => exportWorkbook({"TrialBalance": rows.map(r=>({Code:r.code, Name:r.name, Debit:r.debit, Credit:r.credit}))})
+    };
+  }
+
+  function companyLine(){
+    return db.company.name ? `الشركة: ${db.company.name}` : 'الشركة: —';
+  }
+
+  function renderPL(){
+    setHeader('أرباح وخسائر', 'إيرادات / مصروفات / صافي');
+    const pl = calcPL();
+
+    ui.pageBody.innerHTML = `
+      <div class="kpis">
+        <div class="kpi"><div class="t">الإيرادات</div><div class="v">${fmtMoney(pl.revenue)}</div></div>
+        <div class="kpi"><div class="t">المصروفات</div><div class="v">${fmtMoney(pl.expense)}</div></div>
+        <div class="kpi"><div class="t">صافي</div><div class="v">${fmtMoney(pl.net)}</div></div>
+        <div class="kpi"><div class="t">اليوم</div><div class="v">${todayISO()}</div></div>
+      </div>
+      <div class="sep"></div>
+      <div class="msg">يعتمد التقرير على تجميع حسابات الإيرادات والمصروفات في دليل الحسابات.</div>
+    `;
+
+    currentReportExport = {
+      pdf: () => pdfFromTable('تقرير أرباح وخسائر', [companyLine(), `التاريخ: ${todayISO()}`], ['البند','القيمة'], [
+        ['الإيرادات', fmtMoney(pl.revenue)],
+        ['المصروفات', fmtMoney(pl.expense)],
+        ['صافي الربح', fmtMoney(pl.net)],
+      ]),
+      excel: () => exportWorkbook({"PL": [{Revenue:pl.revenue, Expense:pl.expense, Net:pl.net}]})
+    };
+  }
+
+  function renderLedger(){
+    setHeader('دفتر الأستاذ', 'عرض حركة حساب محدد + رصيد تراكمي');
+    const accs = [...db.coa.accounts].sort((a,b)=>a.code.localeCompare(b.code));
+
+    ui.pageBody.innerHTML = `
+      <div class="row">
+        <div class="field" style="flex:1 1 320px"><div class="label">الحساب</div>
+          <select id="ledAcc">
+            <option value="">—</option>
+            ${selectOptions(accs, x=>x.code, x=>`${x.code} - ${x.name}`)}
+          </select>
+        </div>
+        <div class="field"><div class="label">من تاريخ</div><input id="ledFrom" type="date" /></div>
+        <div class="field"><div class="label">إلى تاريخ</div><input id="ledTo" type="date" /></div>
+        <div class="field" style="align-self:end"><button class="btn primary" id="ledRun">عرض</button></div>
+      </div>
+      <div class="sep"></div>
+      <div id="ledOut"></div>
+    `;
+
+    $('#ledRun').addEventListener('click', ()=>{
+      const code = $('#ledAcc').value;
+      if(!code) return toast('اختر الحساب','err');
+      const rows = ledgerForAccount(code);
+      const from = $('#ledFrom').value || '0000-00-00';
+      const to = $('#ledTo').value || '9999-99-99';
+      const f = rows.filter(r=>r.date>=from && r.date<=to);
+
+      $('#ledOut').innerHTML = table([
+        {key:'date', label:'التاريخ'},
+        {key:'memo', label:'البيان'},
+        {key:'ref', label:'مرجع'},
+        {key:'costCenter', label:'مركز كلفة'},
+        {key:'debit', label:'مدين', render:r=>fmtMoney(r.debit)},
+        {key:'credit', label:'دائن', render:r=>fmtMoney(r.credit)},
+        {key:'balance', label:'الرصيد', render:r=>fmtMoney(r.balance)},
+      ], f);
+
+      currentReportExport = {
+        pdf: () => pdfFromTable('دفتر الأستاذ', [companyLine(), `الحساب: ${code} - ${getAccount(code)?.name||''}`, `الفترة: ${from} إلى ${to}`],
+          ['التاريخ','البيان','مرجع','مركز كلفة','مدين','دائن','الرصيد'],
+          f.map(r=>[r.date,r.memo,r.ref,r.costCenter,fmtMoney(r.debit),fmtMoney(r.credit),fmtMoney(r.balance)])),
+        excel: () => exportWorkbook({"Ledger": f.map(r=>({Date:r.date, Memo:r.memo, Ref:r.ref, CostCenter:r.costCenter, Debit:r.debit, Credit:r.credit, Balance:r.balance}))})
+      };
+    });
+  }
+
+  function renderStatement(){
+    setHeader('كشف حساب', 'كشف حساب عميل أو مورد (مدين/دائن/رصيد)');
+    const customers = db.masters.customers;
+    const vendors = db.masters.vendors;
+
+    ui.pageBody.innerHTML = `
+      <div class="row">
+        <div class="field"><div class="label">النوع</div>
+          <select id="stKind">
+            <option value="customer">عميل</option>
+            <option value="vendor">مورد</option>
+          </select>
+        </div>
+        <div class="field" style="flex:1 1 320px"><div class="label">الاسم</div>
+          <select id="stParty"></select>
+        </div>
+        <div class="field"><div class="label">من تاريخ</div><input id="stFrom" type="date" /></div>
+        <div class="field"><div class="label">إلى تاريخ</div><input id="stTo" type="date" /></div>
+        <div class="field" style="align-self:end"><button class="btn primary" id="stRun">عرض</button></div>
+      </div>
+      <div class="sep"></div>
+      <div id="stOut"></div>
+    `;
+
+    const partySel = $('#stParty');
+    const refreshParties = () => {
+      const kind = $('#stKind').value;
+      const list = kind==='customer'? customers: vendors;
+      partySel.innerHTML = `<option value="">—</option>` + selectOptions(list, x=>x.id, x=>x.name);
+    };
+    refreshParties();
+    $('#stKind').addEventListener('change', refreshParties);
+
+    $('#stRun').addEventListener('click', ()=>{
+      const kind = $('#stKind').value;
+      const id = $('#stParty').value;
+      if(!id) return toast('اختر الاسم','err');
+
+      const {party, rows, totals} = partyStatement(kind, id);
+      const from = $('#stFrom').value || '0000-00-00';
+      const to = $('#stTo').value || '9999-99-99';
+      const f = rows.filter(r=>r.date>=from && r.date<=to);
+      const tdr = f.reduce((s,x)=>s+Number(x.debit||0),0);
+      const tcr = f.reduce((s,x)=>s+Number(x.credit||0),0);
+      const bal = tdr - tcr;
+
+      $('#stOut').innerHTML = `
+        <div class="msg">${kind==='customer'?'عميل':'مورد'}: <b>${escapeHtml(party.name)}</b> • مدين: <b>${fmtMoney(tdr)}</b> • دائن: <b>${fmtMoney(tcr)}</b> • الرصيد: <b>${fmtMoney(kind==='vendor'?(tcr-tdr):bal)}</b></div>
+        <div class="sep"></div>
+        ${table([
+          {key:'date', label:'التاريخ'},
+          {key:'memo', label:'البيان'},
+          {key:'debit', label:'مدين', render:r=>fmtMoney(r.debit)},
+          {key:'credit', label:'دائن', render:r=>fmtMoney(r.credit)},
+        ], f)}
+      `;
+
+      currentReportExport = {
+        pdf: () => pdfFromTable('كشف حساب', [companyLine(), `${kind==='customer'?'عميل':'مورد'}: ${party.name}`, `الفترة: ${from} إلى ${to}`],
+          ['التاريخ','البيان','مدين','دائن'],
+          f.map(r=>[r.date,r.memo,fmtMoney(r.debit),fmtMoney(r.credit)])),
+        excel: () => exportWorkbook({"Statement": f.map(r=>({Date:r.date, Memo:r.memo, Debit:r.debit, Credit:r.credit}))})
+      };
+    });
+  }
+
+  function renderCustomerBalances(){
+    setHeader('تقرير أرصدة العملاء', 'مدين / دائن / الرصيد (عليه/له)');
+    const rows = calcCustomerBalances().map(r=>({
+      name:r.name,
+      debit:r.debit,
+      credit:r.credit,
+      balance:r.balance,
+      status: r.balance>=0 ? 'عليه' : 'له'
+    }));
+
+    ui.pageBody.innerHTML = `
+      ${table([
+        {key:'name', label:'الاسم'},
+        {key:'debit', label:'مدين', render:r=>fmtMoney(r.debit)},
+        {key:'credit', label:'دائن', render:r=>fmtMoney(r.credit)},
+        {key:'balance', label:'الرصيد', render:r=>fmtMoney(Math.abs(r.balance))},
+        {key:'status', label:'النوع'},
+      ], rows)}
+    `;
+
+    currentReportExport = {
+      pdf: () => pdfFromTable('أرصدة العملاء', [companyLine(), `التاريخ: ${todayISO()}`],
+        ['الاسم','مدين','دائن','الرصيد','النوع'],
+        rows.map(r=>[r.name,fmtMoney(r.debit),fmtMoney(r.credit),fmtMoney(Math.abs(r.balance)),r.status])),
+      excel: () => exportWorkbook({"CustomerBalances": rows.map(r=>({Name:r.name, Debit:r.debit, Credit:r.credit, Balance:Math.abs(r.balance), Type:r.status}))})
+    };
+  }
+
+  function renderVendorBalances(){
+    setHeader('تقرير أرصدة الموردين', 'مدين / دائن / الرصيد (لصالح المورد)');
+    const rows = calcVendorBalances().map(r=>({
+      name:r.name,
+      debit:r.debit,
+      credit:r.credit,
+      balance:r.balance, // already (credit-debit)
+      status: r.balance>=0 ? 'لصالح المورد' : 'لصالح الشركة'
+    }));
+
+    ui.pageBody.innerHTML = `
+      ${table([
+        {key:'name', label:'الاسم'},
+        {key:'debit', label:'مدين', render:r=>fmtMoney(r.debit)},
+        {key:'credit', label:'دائن', render:r=>fmtMoney(r.credit)},
+        {key:'balance', label:'الرصيد', render:r=>fmtMoney(Math.abs(r.balance))},
+        {key:'status', label:'النوع'},
+      ], rows)}
+    `;
+
+    currentReportExport = {
+      pdf: () => pdfFromTable('أرصدة الموردين', [companyLine(), `التاريخ: ${todayISO()}`],
+        ['الاسم','مدين','دائن','الرصيد','النوع'],
+        rows.map(r=>[r.name,fmtMoney(r.debit),fmtMoney(r.credit),fmtMoney(Math.abs(r.balance)),r.status])),
+      excel: () => exportWorkbook({"VendorBalances": rows.map(r=>({Name:r.name, Debit:r.debit, Credit:r.credit, Balance:Math.abs(r.balance), Type:r.status}))})
+    };
+  }
+
+  function renderExcel(){
+    setHeader('Excel', 'تصدير/استيراد (XLSX) مع استبدال البيانات');
+    const canEdit = requireRole('admin');
+
+    ui.pageBody.innerHTML = `
+      <div class="msg">التصدير يعمل لجميع الأدوار. الاستيراد (استبدال البيانات) للـ Admin فقط.</div>
+      <div style="height:10px"></div>
+
+      <div class="row">
+        <button class="btn primary" id="expAll">تصدير كل البيانات إلى Excel</button>
+        <button class="btn" id="expReports">تصدير التقارير (ميزان + P/L + أرصدة)</button>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="row">
+        <div class="field" style="flex:1 1 360px"><div class="label">استيراد Excel (استبدال البيانات)</div>
+          <input id="impXlsx" type="file" accept=".xlsx" ${canEdit?'':'disabled'} />
+        </div>
+        <div class="field" style="align-self:end"><button class="btn danger" id="doImport" ${canEdit?'':'disabled'}>استيراد (استبدال)</button></div>
+      </div>
+
+      <div class="msg">صيغة الشيتات المتوقعة:
+        <br>Customers / Vendors / Items / CostCenters / COA / Journals
+      </div>
+    `;
+
+    $('#expAll').addEventListener('click', ()=>{
+      const sheets = {
+        Customers: db.masters.customers,
+        Vendors: db.masters.vendors,
+        Items: db.masters.items,
+        CostCenters: db.masters.costCenters,
+        COA: db.coa.accounts,
+        Journals: db.trx.journals.map(j=>({
+          id:j.id, date:j.date, memo:j.memo, refType:j.refType, refId:j.refId,
+          lines: JSON.stringify(j.lines)
+        })),
+      };
+      exportWorkbook(sheets);
+    });
+
+    $('#expReports').addEventListener('click', ()=>{
+      const tb = calcTrialBalance();
+      const pl = calcPL();
+      const cb = calcCustomerBalances();
+      const vb = calcVendorBalances();
+      exportWorkbook({
+        TrialBalance: tb.rows.map(r=>({Code:r.code, Name:r.name, Debit:r.debit, Credit:r.credit})),
+        PL: [{Revenue:pl.revenue, Expense:pl.expense, Net:pl.net}],
+        CustomerBalances: cb.map(r=>({Name:r.name, Debit:r.debit, Credit:r.credit, Balance:r.balance})),
+        VendorBalances: vb.map(r=>({Name:r.name, Debit:r.debit, Credit:r.credit, Balance:r.balance})),
+      });
+    });
+
+    $('#doImport').addEventListener('click', async ()=>{
+      try{
+        assertRole('admin');
+        if(!hasXLSX()) throw new Error('مكتبة XLSX غير محملة');
+        const f = $('#impXlsx').files?.[0];
+        if(!f) throw new Error('اختر ملف Excel');
+        const buf = await f.arrayBuffer();
+        const wb = XLSX.read(buf, {type:'array'});
+
+        const getSheet = (name) => {
+          const ws = wb.Sheets[name];
+          if(!ws) return null;
+          return XLSX.utils.sheet_to_json(ws, {defval:''});
+        };
+
+        const customers = getSheet('Customers');
+        const vendors = getSheet('Vendors');
+        const items = getSheet('Items');
+        const costCenters = getSheet('CostCenters');
+        const coa = getSheet('COA');
+        const journals = getSheet('Journals');
+
+        const ok = confirm('سيتم استبدال البيانات الحالية بالبيانات الموجودة في Excel. هل تريد المتابعة؟');
+        if(!ok) return;
+
+        if(customers) db.masters.customers = customers.map(x=>({
+          id: String(x.id||uid()),
+          name: String(x.name||x.Name||'').trim(),
+          opening: Number(x.opening||x.Opening||0),
+          openingDate: String(x.openingDate||x.OpeningDate||'').slice(0,10)
+        })).filter(x=>x.name);
+
+        if(vendors) db.masters.vendors = vendors.map(x=>({
+          id: String(x.id||uid()),
+          name: String(x.name||x.Name||'').trim(),
+          opening: Number(x.opening||x.Opening||0),
+          openingDate: String(x.openingDate||x.OpeningDate||'').slice(0,10)
+        })).filter(x=>x.name);
+
+        if(items) db.masters.items = items.map(x=>({
+          id: String(x.id||uid()),
+          name: String(x.name||x.Name||'').trim(),
+          unit: String(x.unit||x.Unit||'').trim(),
+          cost: Number(x.cost||x.Cost||0)
+        })).filter(x=>x.name);
+
+        if(costCenters) db.masters.costCenters = costCenters.map(x=>({
+          code: String(x.code||x.Code||'').trim(),
+          name: String(x.name||x.Name||'').trim(),
+        })).filter(x=>x.code && x.name);
+        if(!db.masters.costCenters.some(x=>x.code==='CC-00')) db.masters.costCenters.unshift({code:'CC-00',name:'افتراضي'});
+
+        if(coa) db.coa.accounts = coa.map(x=>({
+          code: String(x.code||x.Code||'').trim(),
+          name: String(x.name||x.Name||'').trim(),
+          type: String(x.type||x.Type||'asset').trim(),
+          parent: String(x.parent||x.Parent||'').trim(),
+        })).filter(x=>x.code && x.name);
+
+        if(journals) db.trx.journals = journals.map(x=>({
+          id: String(x.id||uid()),
+          date: String(x.date||x.Date||'').slice(0,10),
+          memo: String(x.memo||x.Memo||''),
+          refType: String(x.refType||x.RefType||''),
+          refId: String(x.refId||x.RefId||''),
+          lines: safeParseLines(x.lines||x.Lines),
+          createdAt: new Date().toISOString(),
+        })).filter(j=>j.date && j.lines?.length);
+
+        saveDB(db);
+        toast('تم الاستيراد');
+        renderRoute();
+      }catch(e){ toast(e.message,'err'); }
+    });
+
+    function safeParseLines(v){
+      try{
+        const arr = JSON.parse(v);
+        if(!Array.isArray(arr)) return [];
+        return arr.map(l=>({
+          id: String(l.id||uid()),
+          account: String(l.account||''),
+          desc: String(l.desc||''),
+          costCenter: String(l.costCenter||'CC-00'),
+          debit: Number(l.debit||0),
+          credit: Number(l.credit||0),
+        })).filter(l=>l.account);
+      }catch{ return []; }
+    }
+  }
+
+  function renderBackup(){
+    setHeader('Backup', 'تصدير/استعادة JSON (يدوي)');
+    const canEdit = requireRole('admin');
+
+    ui.pageBody.innerHTML = `
+      <div class="row">
+        <button class="btn primary" id="dlJson">تحميل Backup JSON</button>
+      </div>
+      <div class="sep"></div>
+      <div class="row">
+        <div class="field" style="flex:1 1 360px"><div class="label">استعادة Backup JSON</div>
+          <input id="upJson" type="file" accept="application/json" ${canEdit?'':'disabled'} />
+        </div>
+        <div class="field" style="align-self:end"><button class="btn danger" id="restore" ${canEdit?'':'disabled'}>استعادة (استبدال)</button></div>
+      </div>
+      <div class="msg">الاستعادة للـ Admin فقط.</div>
+    `;
+
+    $('#dlJson').addEventListener('click', ()=>{
+      const blob = new Blob([JSON.stringify(db,null,2)], {type:'application/json'});
+      downloadBlob(blob, 'ERP_Backup.json');
+    });
+
+    $('#restore').addEventListener('click', async ()=>{
+      try{
+        assertRole('admin');
+        const f = $('#upJson').files?.[0];
+        if(!f) throw new Error('اختر ملف JSON');
+        const txt = await f.text();
+        const obj = JSON.parse(txt);
+        const ok = confirm('سيتم استبدال البيانات الحالية بالكامل. هل تريد المتابعة؟');
+        if(!ok) return;
+        db = obj;
+        seedCOAIfEmpty(db);
+        saveDB(db);
+        toast('تمت الاستعادة');
+        renderRoute();
+      }catch(e){ toast(e.message,'err'); }
+    });
+  }
+
+  /* ------------------------------
+   * Login
+   * ------------------------------ */
+  const loginTabs = $('#loginTabs');
+  const loginUsers = $('#loginUsers');
+  const loginGuest = $('#loginGuest');
+  const loginMsg = $('#loginMsg');
+
+  function showLoginMsg(text, isErr=false){
+    loginMsg.textContent = text;
+    loginMsg.classList.remove('hidden');
+    loginMsg.classList.toggle('err', !!isErr);
+  }
+
+  loginTabs.addEventListener('click', (e)=>{
+    const tab = e.target.closest('.tab');
+    if(!tab) return;
+    $$('#loginTabs .tab').forEach(t=>t.classList.toggle('active', t===tab));
+    const k = tab.getAttribute('data-tab');
+    loginUsers.classList.toggle('hidden', k!=='users');
+    loginGuest.classList.toggle('hidden', k!=='guest');
+    loginMsg.classList.add('hidden');
+  });
+
+  $('#loginBtn').addEventListener('click', ()=>{
+    const u = ($('#loginUser').value||'').trim();
+    const p = ($('#loginPass').value||'').trim();
+    const user = db.security.users.find(x=>x.username===u && x.password===p);
+    if(!user) return showLoginMsg('بيانات الدخول غير صحيحة', true);
+
+    session.userId = user.id;
+    session.username = user.username;
+    session.role = user.role;
+    session.name = user.name;
+    saveSession();
+    setSessionChip();
+    setView('app');
+    navigate('dashboard');
+  });
+
+  $('#guestBtn').addEventListener('click', ()=>{
+    session.userId = 'guest';
+    session.username = 'viewer';
+    session.role = 'viewer';
+    session.name = 'Viewer';
+    saveSession();
+    setSessionChip();
+    setView('app');
+    navigate('dashboard');
+  });
+
+  // Enter key on password
+  $('#loginPass').addEventListener('keydown', (e)=>{ if(e.key==='Enter') $('#loginBtn').click(); });
+
+  /* ------------------------------
+   * Boot
+   * ------------------------------ */
+  setSessionChip();
+  if(loadSession()){
+    setSessionChip();
+    setView('app');
+    navigate('dashboard');
+  } else {
+    setView('login');
+  }
+
+})();
+</script>
+</body>
+</html>
